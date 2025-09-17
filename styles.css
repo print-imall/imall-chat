@@ -10,7 +10,7 @@ body {
     flex-direction: column;
 }
 
-/* כותרת עליונה */
+/* כותרת עליונה עם לוגו */
 .header {
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(10px);
@@ -18,12 +18,32 @@ body {
     text-align: center;
 }
 
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.logo {
+    height: 50px;
+    width: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
 .header h1 {
     color: white;
     font-size: 2.4rem;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    margin-bottom: 11px;
+    margin: 0;
     background: linear-gradient(135deg, #ffffff, #e3f2fd);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -606,7 +626,170 @@ mark {
 
 .saved-search-text {
     flex: 1;
-    font-size: 14/* קובץ עיצוב ראשי לחברה */
+    font-size: 14px;
+    color: #495057;
+}
+
+.saved-search-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.saved-search-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.search-btn-load {
+    background: #007bff;
+    color: white;
+}
+
+.search-btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+/* ייצוא */
+.export-buttons {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.export-btn.excel {
+    background: linear-gradient(135deg, #217346, #0d5d2b);
+    color: white;
+}
+
+.export-btn.json {
+    background: linear-gradient(135deg, #fd7e14, #e55a00);
+    color: white;
+}
+
+.export-btn.csv {
+    background: linear-gradient(135deg, #6f42c1, #5a2d91);
+    color: white;
+}
+
+.export-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* מדיה */
+@media (max-width: 900px) {
+    .main-container { 
+        flex-direction: column; 
+    }
+    .sidebar { 
+        width: 100%; 
+        min-width: unset; 
+        max-width: unset; 
+        padding:10px 0 0 0;
+    }
+    .chat-area { 
+        width: 100%; 
+    }
+    .input-area {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .search-btn, .clear-btn {
+        width: 100%;
+        margin-right: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar { 
+        display: none; 
+    }
+    .main-container { 
+        flex-direction: column;
+    }
+    .tabs-area {
+        padding-right: 0;
+    }
+    .messages-area {
+        border: 1.5px solid #b1b1d2;
+        border-radius: 10px;
+        box-shadow: 0 1px 7px 1px rgba(80,80,160,0.04);
+        min-height: 180px;
+        padding: 14px 2vw 8px 2vw;
+    }
+    .input-area { 
+        flex-direction: column; 
+        gap: 13px; 
+        padding: 12px;
+    }
+    .product-compact { 
+        flex-direction: column; 
+        gap: 12px;
+    }
+    .product-image-compact img { 
+        width: 99vw; 
+        max-width: 99vw; 
+        height: 180px;
+    }
+    .btn-share, .search-btn, .clear-btn {
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 20px;
+    }
+    
+    /* שיפורי נייד לפילטרים */
+    .filters-panel {
+        margin: 0 -12px;
+    }
+    
+    .filters-panel > div {
+        border-radius: 0;
+        margin: 0;
+    }
+    
+    .filters-panel > div > div:first-of-type {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* סגנון סרגל גלילה */
+.messages-area::-webkit-scrollbar { 
+    width: 8px;
+}
+
+.messages-area::-webkit-scrollbar-track { 
+    background: rgba(0,0,0,0.07); 
+    border-radius: 10px;
+}
+
+.messages-area::-webkit-scrollbar-thumb { 
+    background: rgba(0,123,255,0.21); 
+    border-radius: 10px;
+}
+
+.messages-area::-webkit-scrollbar-thumb:hover { 
+    background: rgba(0,123,255,0.33);
+}/* קובץ עיצוב ראשי לחברה */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
