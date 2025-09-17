@@ -1,15 +1,5 @@
-// מנוע החיפוש וטיפול בתוצאות - מתקדם
+// מנוע החיפוש וטיפול בתוצאות - פשוט ללא פילטרים
 
-// משתנים לפילטרים
-let activeFilters = {
-    priceMin: null,
-    priceMax: null,
-    selectedMalls: [],
-    campaignType: 'all',
-    sortBy: 'relevance'
-};
-
-// פונקציה לחיפוש מוצרים עם פילטרים
 function searchProducts(query) {
     if (!query || !query.trim()) return [];
     const searchQuery = query.trim().toLowerCase();
@@ -26,7 +16,7 @@ function searchProducts(query) {
         results = platformResults.map(product => ({
             product,
             matchType: 'platform',
-            score: 10 // ניקוד גבוה לפלטפורמה
+            score: 10
         }));
     } else if (Array.isArray(productsData)) {
         const searchTerms = searchQuery.split(/\s+/).filter(t => t.length > 0);
@@ -37,7 +27,6 @@ function searchProducts(query) {
                 const fieldValue = String(val).toLowerCase();
                 searchTerms.forEach(term => {
                     if (fieldValue.includes(term)) {
-                        // ניקוד גבוה יותר לשדות חשובים
                         if (key === 'מקט') score += 5;
                         else if (key === 'מתחם') score += 3;
                         else score += 1;
@@ -50,79 +39,18 @@ function searchProducts(query) {
         results = scored;
     }
 
-    results = applyFilters(results);
-    results = sortResults(results);
+    // אין החלת פילטרים ואין מיון
     return Array.isArray(results) ? results.slice(0, 30) : [];
-}
-
-// פונקציה להחלת פילטרים
-function applyFilters(results) {
-    if (!Array.isArray(results)) return [];
-    return results.filter(item => {
-        const product = item.product;
-
-        // פילטר מחיר
-        if (activeFilters.priceMin !== null || activeFilters.priceMax !== null) {
-            const price = Number(String(product['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
-            if (activeFilters.priceMin !== null && price < activeFilters.priceMin) return false;
-            if (activeFilters.priceMax !== null && price > activeFilters.priceMax) return false;
-        }
-
-        // פילטר מתחמים
-        if (activeFilters.selectedMalls.length > 0) {
-            const mall = product['מתחם'] || '';
-            if (!activeFilters.selectedMalls.includes(mall)) return false;
-        }
-
-        // פילטר סוג קמפיין
-        if (activeFilters.campaignType !== 'all') {
-            const platform = product['פלטפורמה'] || '';
-            if (activeFilters.campaignType === 'פרינט' && !platform.includes('פרינט')) return false;
-            if (activeFilters.campaignType === 'דיגיטלי' && !platform.includes('דיגיטלי')) return false;
-        }
-
-        return true;
-    });
-}
-
-// פונקציה למיון תוצאות
-function sortResults(results) {
-    if (!Array.isArray(results)) return [];
-    switch (activeFilters.sortBy) {
-        case 'price_low':
-            return results.slice().sort((a, b) => {
-                const priceA = Number(String(a.product['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
-                const priceB = Number(String(b.product['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
-                return priceA - priceB;
-            });
-        case 'price_high':
-            return results.slice().sort((a, b) => {
-                const priceA = Number(String(a.product['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
-                const priceB = Number(String(b.product['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
-                return priceB - priceA;
-            });
-        case 'visitors_high':
-            return results.slice().sort((a, b) => {
-                const visitorsA = Number(String(a.product['מבקרים'] || '0').replace(/[^0-9]/g, ''));
-                const visitorsB = Number(String(b.product['מבקרים'] || '0').replace(/[^0-9]/g, ''));
-                return visitorsB - visitorsA;
-            });
-        case 'relevance':
-        default:
-            return results.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
-    }
 }
 
 // פונקציה להדגשת מילים בטקסט
 function highlightText(text, searchTerms) {
     if (!text || !searchTerms || searchTerms.length === 0) return text;
-
     let highlightedText = String(text);
     searchTerms.forEach(term => {
         const regex = new RegExp(`(${term})`, 'gi');
         highlightedText = highlightedText.replace(regex, '<mark style="background-color: #ffeb3b; padding: 1px 2px; border-radius: 2px;">$1</mark>');
     });
-
     return highlightedText;
 }
 
@@ -135,33 +63,41 @@ function displayAllProductResults(items) {
         const searchTerms = currentQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
 
         if (matchType === 'platform') {
-            addMessage(`<strong>🎯 נמצאו ${items.length} תוצאות בפלטפורמה:</strong><br>התוצאות מוצגות לפי התאמה מדויקת בשדה "פלטפורמה"[...]`);
+            addMessage(`<strong>🎯 נמצאו ${items.length} תוצאות בפלטפורמה:</strong>`);
         } else {
-            addMessage(`<strong>🔍 נמצאו ${items.length} תוצאות בחיפוש כללי:</strong><br>לא נמצאו התאמות בפלטפורמה, מוצגות תוצאות מכל �[...]`);
+            addMessage(`<strong>🔍 נמצאו ${items.length} תוצאות בחיפוש כללי:</strong>`);
         }
-
-        // הצגת פילטרים פעילים
-        const activeFiltersText = getActiveFiltersText();
-        if (activeFiltersText) {
-            addMessage(`<div style="background: rgba(33,150,243,0.1); padding: 10px; border-radius: 6px; margin: 5px 0;"><strong>🔧 פילטרים פעילים:</strong><br>${activeFiltersText}[...]`);
-        }
-
-        // הוספת כפתורי ייצוא לתוצאות החיפוש
-        addMessage(`
-            <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0;">
-                <strong>📥 ייצא תוצאות חיפוש:</strong><br>
-                <div class="export-buttons" style="margin-top: 10px;">
-                    <button class="export-btn excel" onclick="exportSearchResults('excel')">📊 Excel</button>
-                    <button class="export-btn csv" onclick="exportSearchResults('csv')">📋 CSV</button>
-                    <button class="export-btn json" onclick="exportSearchResults('json')">🔧 JSON</button>
-                    <button class="export-btn" style="background: linear-gradient(135deg, #e91e63, #ad1457); color: white;" onclick="printResults()">🖨️ הדפס</button>
-                </div>
-            </div>
-        `);
 
         // הצגת תוצאות עם הדגשות
         items.forEach(item => displayProductResult(item, searchTerms));
+    } else {
+        addMessage('<div class="error-message"><strong>🔍 לא נמצאו תוצאות</strong></div>');
     }
 }
 
-// המשך הפונקציות (getActiveFiltersText, displayProductResult, exportSearchResults, printResults וכו') - ללא שינוי מהקוד שלך.
+// פונקציה להצגת תוצאה בודדת (פשטני – אפשר לעצב כרצונך)
+function displayProductResult(item, searchTerms) {
+    const product = item.product;
+    const html = `
+        <div class="product-result">
+            <strong>${highlightText(product['מקט'] || '', searchTerms)}</strong><br>
+            ${highlightText(product['פלטפורמה'] || '', searchTerms)}<br>
+            ${highlightText(product['מתחם'] || '', searchTerms)}<br>
+            ${highlightText(product['מחיר מכירה'] || '', searchTerms)}
+        </div>
+    `;
+    addMessage(html);
+}
+
+// דוג' לפונקציה להוספת הודעה (בהנחה שיש לך מערכת הודעות)
+function addMessage(html) {
+    // תעדכן לפי איך שההודעות מוצגות אצלך
+    const msgArea = document.getElementById('messagesArea');
+    if (msgArea) {
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        msgArea.appendChild(div);
+    }
+}
+
+// שים לב: פונקציות ייצוא/הדפסה וכו' – אם תרצה, אשמח להוסיף.
