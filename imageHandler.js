@@ -1,4 +1,4 @@
-// טיפול בתמונות וקישורי שיתוף
+// טיפול בתמונות וקישורי שיתוף - עם הדגשות
 
 // פונקציה ליצירת URL תמונה
 function generateImageUrl(productCode) {
@@ -44,7 +44,7 @@ function shareProduct(productCode) {
     
     const imageUrl = generateImageUrl(productCode);
     productText += '\n📷 *תמונה:* ' + imageUrl;
-    productText += '\n\n—\n📡 נשלח ממערכת צ\'אט החברה';
+    productText += '\n\n—\n📡 נשלח ממערכת איימולון';
     
     const whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(productText);
     window.open(whatsappUrl, '_blank');
@@ -52,8 +52,8 @@ function shareProduct(productCode) {
     addMessage('<strong>📱 שיתוף בווטסאפ</strong><br>הנתונים של מק"ט ' + productCode + ' נשלחו לווטסאפ!<br><small>אם הווטסאפ לא נפתח, בדוק שיש לך את האפליקציה מותקנת.</small>');
 }
 
-// פונקציה להצגת תוצאת מוצר
-function displayProductResult(item) {
+// פונקציה להצגת תוצאת מוצר עם הדגשות
+function displayProductResult(item, searchTerms = []) {
     const product = item.product;
     const productCode = product['מקט'] || 'לא זמין';
     const imageUrl = generateImageUrl(productCode);
@@ -65,20 +65,35 @@ function displayProductResult(item) {
     html += '</div>';
     html += '<div class="product-info-compact">';
     html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
-    html += '<h3 style="margin: 0; font-size: 21px;">מקט: ' + productCode + '</h3>';
+    html += '<h3 style="margin: 0; font-size: 21px;">מקט: ' + highlightText(productCode, searchTerms) + '</h3>';
     html += '</div>';
     html += '<div class="product-table-wrapper"><table class="product-table"><tbody>';
-    html += '<tr class="highlight-row"><th>פלטפורמה</th><td><strong>' + (product['פלטפורמה'] || 'לא זמין') + '</strong></td></tr>';
-    html += '<tr><th>מתחם</th><td>' + (product['מתחם'] || 'לא זמין') + '</td></tr>';
-    html += '<tr><th>מחיר מכירה</th><td>' + (product['מחיר מכירה'] || 'לא זמין') + '</td></tr>';
-    html += '<tr><th>קמפיין</th><td>' + (product['קמפיין'] || 'לא זמין') + '</td></tr>';
-    html += `<tr><th>גובה</th><td>${product['גובה']||'-'}</td></tr>`;
-    html += `<tr><th>רוחב</th><td>${product['רוחב']||'-'}</td></tr>`;
-    html += '<tr><th>מספר מבקרים</th><td>' + (product['מבקרים'] || '-') + '</td></tr>';
+    html += '<tr class="highlight-row"><th>פלטפורמה</th><td><strong>' + highlightText(product['פלטפורמה'] || 'לא זמין', searchTerms) + '</strong></td></tr>';
+    html += '<tr><th>מתחם</th><td>' + highlightText(product['מתחם'] || 'לא זמין', searchTerms) + '</td></tr>';
+    html += '<tr><th>מחיר מכירה</th><td>' + highlightText(product['מחיר מכירה'] || 'לא זמין', searchTerms) + '</td></tr>';
+    html += '<tr><th>קמפיין</th><td>' + highlightText(product['קמפיין'] || 'לא זמין', searchTerms) + '</td></tr>';
+    html += `<tr><th>גובה</th><td>${highlightText(product['גובה']||'-', searchTerms)}</td></tr>`;
+    html += `<tr><th>רוחב</th><td>${highlightText(product['רוחב']||'-', searchTerms)}</td></tr>`;
+    html += '<tr><th>מספר מבקרים</th><td>' + highlightText(product['מבקרים'] || '-', searchTerms) + '</td></tr>';
     html += '</tbody></table></div>';
     html += '<div class="action-buttons-product">';
     html += '<button class="btn-share" onclick="shareProduct(\'' + productCode + '\')">📱 שתף בווטסאפ</button>';
     html += '</div></div></div></div>';
     
     addMessage(html);
+}
+
+// פונקציה להדגשת מילים בטקסט
+function highlightText(text, searchTerms) {
+    if (!text || !searchTerms || searchTerms.length === 0) return text;
+    
+    let highlightedText = String(text);
+    searchTerms.forEach(term => {
+        if (term.length > 1) { // מדגיש רק מילים באורך 2+ תווים
+            const regex = new RegExp(`(${term})`, 'gi');
+            highlightedText = highlightedText.replace(regex, '<mark style="background-color: #ffeb3b; padding: 1px 2px; border-radius: 2px; font-weight: bold;">$1</mark>');
+        }
+    });
+    
+    return highlightedText;
 }
