@@ -1,12 +1,12 @@
 // משתנים גלובליים בסיסיים
-let elements = {
+var elements = {
     searchInput: document.getElementById('searchInput'),
     messagesArea: document.getElementById('messagesArea'),
     searchBtn: document.getElementById('searchBtn')
 };
-let currentSearchResults = [];
+var currentSearchResults = [];
 
-// פעולה להצגת הודעה (אפשר להחליף לפי איך שאתה מציג הודעות)
+// פעולה להצגת הודעה
 function addMessage(html, type = '') {
     if (!elements.messagesArea) return;
     const div = document.createElement('div');
@@ -16,7 +16,7 @@ function addMessage(html, type = '') {
     elements.messagesArea.scrollTop = elements.messagesArea.scrollHeight;
 }
 
-// פונקציה שמבצעת את החיפוש
+// פונקציה לחיפוש
 function performSearch() {
     const query = elements.searchInput.value.trim();
     if (!query) return;
@@ -34,7 +34,7 @@ function performSearch() {
     elements.searchInput.value = '';
 }
 
-// הצגת תוצאות (פשוט)
+// הצגת תוצאות
 function displayAllProductResults(items) {
     if (!items || items.length === 0) {
         addMessage('<div class="error-message"><strong>🔍 לא נמצאו תוצאות</strong></div>');
