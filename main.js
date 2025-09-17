@@ -254,9 +254,15 @@ function setupEventListeners() {
 
     // אירועי גנט
     const ganttCalcBtn = document.getElementById('ganttCalcBtn');
-    if (ganttCalcBtn) {
-        ganttCalcBtn.addEventListener('click', calculateGanttBudget);
-    }
+if (ganttCalcBtn) {
+    ganttCalcBtn.addEventListener('click', function() {
+        if (typeof calculateGanttBudget === 'function') {
+            calculateGanttBudget();
+        } else {
+            console.error('calculateGanttBudget function not loaded yet');
+        }
+    });
+}
     
     const ganttClearBtn = document.getElementById('ganttClearBtn');
     if (ganttClearBtn) {
