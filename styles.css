@@ -729,6 +729,21 @@ mark {
     .tabs-area {
         padding-right: 0;
     }
+    
+    /* התאמת לוגו למובייל */
+    .logo-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .logo {
+        height: 40px;
+    }
+    
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
     .messages-area {
         border: 1.5px solid #b1b1d2;
         border-radius: 10px;
