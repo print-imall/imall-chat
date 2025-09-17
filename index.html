@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת צ'אט החברה</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🢠</text></svg>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- קישורים לקבצי CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🢠 מערכת צ'אט החברה</h1>
+        <div class="status-indicator loading" id="statusIndicator">
+            <span>⏳</span>
+            <span>טוען נתונים...</span>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="stats-card" id="statsCard" style="display: none;">
+                <div class="stats-number" id="productCount">0</div>
+                <div class="stats-label">מוצרים במאגר</div>
+            </div>
+            <div class="quick-info">
+                <h3>💡 מידע מהיר</h3>
+                <p><strong>🎯 חיפוש חכם:</strong> החיפוש מתחיל בפלטפורמה ואז עובר לשדות אחרים</p>
+                <p><strong>🔍 דוגמאות חיפוש:</strong></p>
+                <p>• שם פלטפורמה</p>
+                <p>• מספר מקט</p>
+                <p>• שם מתחם</p>
+                <p>• שם קמפיין</p>
+                <p><strong>📷 תמונות:</strong> מוצגות אוטומטית לפי מספר המקט</p>
+            </div>
+        </div>
+        
+        <div class="chat-area">
+            <div class="tabs-area">
+                <button id="tabSearch" class="tab-btn active">🔍 חיפוש</button>
+                <button id="tabGantt" class="tab-btn">📊 גאנט תקציב</button>
+            </div>
+            
+            <!-- טאב חיפוש -->
+            <div id="tabSearchPanel" class="tab-panel" style="display:block;">
+                <div class="messages-area" id="messagesArea">
+                    <div class="message system">
+                        <strong>🤖 ברוכים הבאים למערכת חיפוש מוצרים!</strong><br><br>
+                        <strong>איך החיפוש עובד:</strong><br>
+                        • המערכת מחפשת תחילה בשדה "פלטפורמה"<br>
+                        • אם לא מוצאת התאמה, מחפשת בשדות אחרים<br>
+                        • מציגה את כל התוצאות המתאימות (עד 30)<br><br>
+                        <strong>התחל לחפש:</strong> הקלד שם פלטפורמה, מקט, או כל מידע אחר של המוצר.<br><br>
+                        <em>המערכת טוענת את הנתונים... אנא המתן כמה רגעים.</em>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="חפש מוצר (פלטפורמה, מקט, מתחם, קמפיין...)"
+                        disabled>
+                    <button id="searchBtn" class="search-btn" disabled>
+                        <span>🔍</span>
+                        <span>חפש</span>
+                    </button>
+                    <button id="saveSearchBtn" class="search-btn" style="background: linear-gradient(135deg,#28a745,#20c997);" disabled>
+                        <span>💾</span>
+                        <span>שמור</span>
+                    </button>
+                    <button id="clearBtn" class="clear-btn" onclick="clearHistory()">
+                        <span>🗑️</span>
+                        <span>נקה</span>
+                    </button>
+                </div>
+                
+                <!-- חיפושים שמורים -->
+                <div style="background: rgba(255,255,255,0.95); padding: 15px; margin-bottom: 10px; border-radius: 12px; display: none;" id="savedSearchesContainer">
+                    <h4 style="margin: 0 0 10px 0; color: #333;">💾 חיפושים שמורים</h4>
+                    <div class="saved-searches" id="savedSearchesList"></div>
+                </div>
+            </div>
+            
+            <!-- טאב גאנט -->
+            <div id="tabGanttPanel" class="tab-panel" style="display:none;">
+                <div class="gantt-controls">
+                    <h3 style="margin-top:0; color:#333; text-align:center;">📊 מחשבון תקציב גאנט</h3>
+                    
+                    <div class="gantt-form-group">
+                        <label for="ganttMalls">🏪 בחר מתחמים:</label>
+                        <div class="multi-select-container">
+                            <div class="multi-select-display" id="mallsDisplay">
+                                <div class="selected-items" id="selectedMalls">
+                                    <span style="color:#999;">בחר מתחמים...</span>
+                                </div>
+                                <div class="dropdown-arrow">▼</div>
+                            </div>
+                            <div class="multi-select-dropdown" id="mallsDropdown"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="gantt-form-group">
+                        <label for="ganttType">🎯 סוג קמפיין:</label>
+                        <select id="ganttType">
+                            <option value="all">משולב (הכל)</option>
+                            <option value="פרינט">פרינט</option>
+                            <option value="דיגיטלי">דיגיטלי</option>
+                        </select>
+                    </div>
+                    
+                    <div class="gantt-form-group">
+                        <label for="ganttBudget">💰 תקציב מקסימלי (₪):</label>
+                        <input type="number" id="ganttBudget" min="0" step="1" placeholder="הכנס תקציב מקסימלי (אופציונלי)">
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <button id="ganttCalcBtn" style="flex:2; padding:15px; font-size:18px; font-weight:700; border-radius:12px; background:linear-gradient(135deg,#007bff,#0056b3); color:white; border:none; cursor:pointer;">📊 חשב תקציב</button>
+                        <button id="ganttClearBtn" style="flex:1; padding:15px; font-size:18px; font-weight:700; border-radius:12px; background:linear-gradient(135deg,#6c757d,#495057); color:white; border:none; cursor:pointer;">🗑️ נקה</button>
+                    </div>
+                    
+                    <div id="ganttResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- קישורים לקבצי JavaScript -->
+    <script src="config.js"></script>
+    <script src="imageHandler.js"></script>
+    <script src="searchEngine.js"></script>
+    <script src="ganttCalculator.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
