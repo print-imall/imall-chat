@@ -1339,7 +1339,7 @@ function updateMallsDropdown() {
         <input type="checkbox" id="selectAll" ${selectedMalls.size === allMalls.length ? 'checked' : ''}>
         <label for="selectAll"><strong>בחר הכל</strong></label>
     `;
-    selectAllOption.addEventListener('click', function(e) {
+    selectAllOption.addEventListener('click', function(e) ){
         e.stopPropagation();
         const checkbox = this.querySelector('input');
         if (checkbox.checked) {
