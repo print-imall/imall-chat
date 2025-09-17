@@ -38,8 +38,13 @@ async function loadExcelData() {
             addMessage(`<strong>📝 שדות זמינים בקובץ:</strong><br><code style="font-size: 12px; background: rgba(0,0,0,0.1); padding: 5px; border-radius: 3px; word-break: break-all;">${sampleFields}</code>`);
         }
         
-        updateGanttMallOptions();
-        updateSavedSearchesDisplay();
+        // קריאה לפונקציות אחרות רק אם הן קיימות
+        if (typeof updateGanttMallOptions === 'function') {
+            updateGanttMallOptions();
+        }
+        if (typeof updateSavedSearchesDisplay === 'function') {
+            updateSavedSearchesDisplay();
+        }
         updateSavedPlansDisplay();
         initializeFilters();
         
@@ -86,18 +91,21 @@ function updateSavedPlansDisplay() {
     
     if (!container || !list) return;
     
-    if (savedGanttPlans.length === 0) {
+    // בדיקה אם savedGanttPlans קיים
+    const plans = typeof savedGanttPlans !== 'undefined' ? savedGanttPlans : [];
+    
+    if (plans.length === 0) {
         list.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">אין תוכניות שמורות</div>';
         return;
     }
     
-    list.innerHTML = savedGanttPlans.map(plan => `
+    list.innerHTML = plans.map(plan => `
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 6px; border-left: 4px solid #007bff;">
             <div style="flex: 1;">
                 <div style="font-weight: 600; color: #333;">${plan.name}</div>
                 <div style="font-size: 12px; color: #666;">
                     נשמר: ${new Date(plan.savedAt).toLocaleDateString('he-IL')} | 
-                    ${plan.data.finalMalls.length} מתחמים | 
+                    ${plan.data.finalMalls ? plan.data.finalMalls.length : 0} מתחמים | 
                     ${plan.data.type === 'all' ? 'משולב' : plan.data.type}
                 </div>
             </div>
@@ -110,24 +118,38 @@ function updateSavedPlansDisplay() {
 }
 
 function loadGanttPlan(planId) {
+    if (typeof savedGanttPlans === 'undefined') {
+        addMessage('<strong>❌ שגיאה!</strong><br>לא ניתן לטעון תוכניות - המערכת לא מוכנה.');
+        return;
+    }
+    
     const plan = savedGanttPlans.find(p => p.id === planId);
     if (!plan) return;
     
     const data = plan.data;
     
     // עדכון הטופס
-    selectedMalls.clear();
-    data.selectedMalls.forEach(mall => selectedMalls.add(mall));
-    updateMallsDisplay();
+    if (typeof selectedMalls !== 'undefined') {
+        selectedMalls.clear();
+        if (data.selectedMalls) {
+            data.selectedMalls.forEach(mall => selectedMalls.add(mall));
+        }
+        
+        if (typeof updateMallsDisplay === 'function') {
+            updateMallsDisplay();
+        }
+    }
     
     const ganttType = document.getElementById('ganttType');
     const ganttBudget = document.getElementById('ganttBudget');
     
-    if (ganttType) ganttType.value = data.type;
+    if (ganttType) ganttType.value = data.type || 'all';
     if (ganttBudget) ganttBudget.value = data.budget || '';
     
     // חישוב מחדש
-    calculateGanttBudget();
+    if (typeof calculateGanttBudget === 'function') {
+        calculateGanttBudget();
+    }
     
     addMessage(`<strong>📂 תוכנית גנט נטענה!</strong><br>התוכנית "${plan.name}" נטענה בהצלחה.`);
     
@@ -138,8 +160,15 @@ function loadGanttPlan(planId) {
 function deleteGanttPlan(planId) {
     if (!confirm('האם אתה בטוח שברצונך למחוק תוכנית זו?')) return;
     
-    savedGanttPlans = savedGanttPlans.filter(p => p.id !== planId);
-    localStorage.setItem('ganttPlans', JSON.stringify(savedGanttPlans));
+    if (typeof savedGanttPlans === 'undefined') return;
+    
+    // עדכון המערך הגלובלי
+    const updatedPlans = savedGanttPlans.filter(p => p.id !== planId);
+    if (typeof window !== 'undefined' && window.savedGanttPlans) {
+        window.savedGanttPlans = updatedPlans;
+    }
+    
+    localStorage.setItem('ganttPlans', JSON.stringify(updatedPlans));
     updateSavedPlansDisplay();
     
     addMessage('<strong>🗑️ תוכנית נמחקה!</strong><br>התוכנית נמחקה בהצלחה.');
@@ -154,6 +183,17 @@ function toggleFilters() {
 }
 
 function applyFilters() {
+    // בדיקה שהמשתנה הגלובלי קיים
+    if (typeof activeFilters === 'undefined') {
+        window.activeFilters = {
+            priceMin: null,
+            priceMax: null,
+            selectedMalls: [],
+            campaignType: 'all',
+            sortBy: 'relevance'
+        };
+    }
+    
     // קריאת ערכי הפילטרים
     const priceMin = document.getElementById('priceMin');
     const priceMax = document.getElementById('priceMax');
@@ -173,7 +213,9 @@ function applyFilters() {
     if (lastUserMessage) {
         const lastQuery = lastUserMessage.textContent.trim();
         elements.searchInput.value = lastQuery;
-        performSearch();
+        if (typeof performSearch === 'function') {
+            performSearch();
+        }
     } else {
         addMessage('<strong>🔧 פילטרים הוחלו!</strong><br>בצע חיפוש כדי לראות את התוצאות המסוננות.');
     }
@@ -183,13 +225,13 @@ function applyFilters() {
 
 function clearFilters() {
     // איפוס משתני הפילטרים
-    activeFilters = {
-        priceMin: null,
-        priceMax: null,
-        selectedMalls: [],
-        campaignType: 'all',
-        sortBy: 'relevance'
-    };
+    if (typeof activeFilters !== 'undefined') {
+        activeFilters.priceMin = null;
+        activeFilters.priceMax = null;
+        activeFilters.selectedMalls = [];
+        activeFilters.campaignType = 'all';
+        activeFilters.sortBy = 'relevance';
+    }
     
     // איפוס שדות הטופס
     const priceMin = document.getElementById('priceMin');
@@ -207,6 +249,42 @@ function clearFilters() {
     addMessage('<strong>🧹 פילטרים נוקו!</strong><br>כל הפילטרים הוסרו. בצע חיפוש מחדש לראות תוצאות לא מסוננות.');
 }
 
+// פונקציה לניקוי טופס גנט
+function clearGanttForm() {
+    try {
+        // ניקוי מתחמים נבחרים
+        if (typeof selectedMalls !== 'undefined') {
+            selectedMalls.clear();
+            if (typeof updateMallsDisplay === 'function') {
+                updateMallsDisplay();
+            }
+            if (typeof updateMallsDropdown === 'function') {
+                updateMallsDropdown();
+            }
+        }
+        
+        // איפוס שדות הטופס
+        const ganttType = document.getElementById('ganttType');
+        const ganttBudget = document.getElementById('ganttBudget');
+        const ganttResults = document.getElementById('ganttResults');
+        
+        if (ganttType) ganttType.value = 'all';
+        if (ganttBudget) ganttBudget.value = '';
+        if (ganttResults) ganttResults.innerHTML = '';
+        
+        // איפוס נתוני גנט נוכחיים
+        if (typeof window !== 'undefined') {
+            window.currentGanttData = null;
+        }
+        
+        addMessage('<strong>🧹 הטופס נוקה!</strong><br>כל הנתונים נמחקו בהצלחה.');
+        
+    } catch (error) {
+        console.error('Error clearing gantt form:', error);
+        addMessage('<strong>⚠️ שגיאה בניקוי הטופס</strong><br>אירעה שגיאה בניקוי הטופס.');
+    }
+}
+
 // אתחול אלמנטים בעמוד
 function initializeElements() {
     elements.messagesArea = document.getElementById('messagesArea');
@@ -220,12 +298,20 @@ function initializeElements() {
 function setupEventListeners() {
     // אירועי חיפוש
     if (elements.searchBtn) {
-        elements.searchBtn.addEventListener('click', performSearch);
+        elements.searchBtn.addEventListener('click', function() {
+            if (typeof performSearch === 'function') {
+                performSearch();
+            } else {
+                console.error('performSearch function not found');
+            }
+        });
     }
     
     if (elements.searchInput) {
         elements.searchInput.addEventListener('keypress', function(e) { 
-            if (e.key === 'Enter') performSearch(); 
+            if (e.key === 'Enter' && typeof performSearch === 'function') {
+                performSearch();
+            }
         });
     }
     
@@ -239,14 +325,23 @@ function setupEventListeners() {
                     id: Date.now(),
                     text: currentQuery,
                     date: new Date().toLocaleDateString('he-IL'),
-                    results_count: currentSearchResults.length
+                    results_count: typeof currentSearchResults !== 'undefined' ? currentSearchResults.length : 0
                 };
+                
+                // בדיקה שהמשתנה הגלובלי קיים
+                if (typeof savedSearches === 'undefined') {
+                    window.savedSearches = [];
+                }
                 
                 savedSearches.unshift(searchObj);
                 if (savedSearches.length > 20) savedSearches.pop();
                 
                 localStorage.setItem('companySearches', JSON.stringify(savedSearches));
-                updateSavedSearchesDisplay();
+                
+                if (typeof updateSavedSearchesDisplay === 'function') {
+                    updateSavedSearchesDisplay();
+                }
+                
                 addMessage(`<strong>💾 החיפוש נשמר!</strong><br>החיפוש "${currentQuery}" נשמר בהצלחה.`);
             }
         });
@@ -254,15 +349,15 @@ function setupEventListeners() {
 
     // אירועי גנט
     const ganttCalcBtn = document.getElementById('ganttCalcBtn');
-if (ganttCalcBtn) {
-    ganttCalcBtn.addEventListener('click', function() {
-        if (typeof calculateGanttBudget === 'function') {
-            calculateGanttBudget();
-        } else {
-            console.error('calculateGanttBudget function not loaded yet');
-        }
-    });
-}
+    if (ganttCalcBtn) {
+        ganttCalcBtn.addEventListener('click', function() {
+            if (typeof calculateGanttBudget === 'function') {
+                calculateGanttBudget();
+            } else {
+                addMessage('<strong>⚠️ שגיאה!</strong><br>פונקציית חישוב הגנט לא זמינה עדיין.');
+            }
+        });
+    }
     
     const ganttClearBtn = document.getElementById('ganttClearBtn');
     if (ganttClearBtn) {
@@ -332,14 +427,31 @@ function setupTabsEventListeners() {
 
 // אתחול המערכת בעת טעינת הדף
 function initializeSystem() {
-    initializeElements();
-    setupEventListeners();
+    console.log('מתחיל אתחול המערכת...');
     
-    // טעינת הנתונים עם עיכוב קצר
-    setTimeout(() => {
-        loadExcelData();
-    }, 700);
+    try {
+        initializeElements();
+        console.log('אלמנטים אותחלו בהצלחה');
+        
+        setupEventListeners();
+        console.log('מאזינים אותחלו בהצלחה');
+        
+        // טעינת הנתונים עם עיכוב קצר
+        setTimeout(() => {
+            console.log('מתחיל טעינת נתונים...');
+            loadExcelData();
+        }, 700);
+        
+    } catch (error) {
+        console.error('שגיאה באתחול המערכת:', error);
+        updateStatus('error', 'שגיאה באתחול');
+    }
 }
 
 // הפעלת המערכת כשהדף נטען
-window.addEventListener('load', initializeSystem);
+if (document.readyState === 'loading') {
+    window.addEventListener('load', initializeSystem);
+} else {
+    // אם הדף כבר נטען
+    initializeSystem();
+}
