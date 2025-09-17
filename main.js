@@ -1,4 +1,6 @@
-// משתנים גלובליים בסיסיים
+// קובץ ראשי - חיפוש פשוט בלבד, ללא פילטרים
+
+// משתנים גלובליים
 var elements = {
     searchInput: document.getElementById('searchInput'),
     messagesArea: document.getElementById('messagesArea'),
@@ -6,7 +8,7 @@ var elements = {
 };
 var currentSearchResults = [];
 
-// פעולה להצגת הודעה
+// הוספת הודעה לאזור התוצאות
 function addMessage(html, type = '') {
     if (!elements.messagesArea) return;
     const div = document.createElement('div');
@@ -16,7 +18,30 @@ function addMessage(html, type = '') {
     elements.messagesArea.scrollTop = elements.messagesArea.scrollHeight;
 }
 
-// פונקציה לחיפוש
+// מציג תוצאות חיפוש
+function displayAllProductResults(items) {
+    if (!items || items.length === 0) {
+        addMessage('<div class="error-message"><strong>🔍 לא נמצאו תוצאות</strong></div>');
+        return;
+    }
+    items.forEach(item => displayProductResult(item));
+}
+
+// מציג מוצר בודד
+function displayProductResult(item) {
+    const product = item.product;
+    const html = `
+        <div class="product-result">
+            <strong>${product['מקט'] || ''}</strong><br>
+            ${product['פלטפורמה'] || ''}<br>
+            ${product['מתחם'] || ''}<br>
+            ${product['מחיר מכירה'] || ''}
+        </div>
+    `;
+    addMessage(html);
+}
+
+// פונקציית החיפוש הראשית - חובה שתהיה גלובלית
 function performSearch() {
     const query = elements.searchInput.value.trim();
     if (!query) return;
@@ -34,29 +59,6 @@ function performSearch() {
     elements.searchInput.value = '';
 }
 
-// הצגת תוצאות
-function displayAllProductResults(items) {
-    if (!items || items.length === 0) {
-        addMessage('<div class="error-message"><strong>🔍 לא נמצאו תוצאות</strong></div>');
-        return;
-    }
-    items.forEach(item => displayProductResult(item));
-}
-
-// הצגת מוצר בודד
-function displayProductResult(item) {
-    const product = item.product;
-    const html = `
-        <div class="product-result">
-            <strong>${product['מקט'] || ''}</strong><br>
-            ${product['פלטפורמה'] || ''}<br>
-            ${product['מתחם'] || ''}<br>
-            ${product['מחיר מכירה'] || ''}
-        </div>
-    `;
-    addMessage(html);
-}
-
 // חיבור כפתור החיפוש ואירוע Enter
 if (elements.searchBtn) {
     elements.searchBtn.addEventListener('click', performSearch);
@@ -68,3 +70,7 @@ if (elements.searchInput) {
         }
     });
 }
+
+// אפשר להסיר/להחביא כפתור פילטרים ב-HTML:
+// <button id="filtersBtn" style="display:none"></button>
+// או פשוט למחוק אותו מה-HTML.
