@@ -1,4 +1,4 @@
-// קובץ ראשי שמחבר את כל הרכיבים
+// קובץ ראשי שמחבר את כל הרכיבים - עם פילטרים מתקדמים
 
 // טעינת נתוני Excel מ-GitHub
 async function loadExcelData() {
@@ -40,6 +40,7 @@ async function loadExcelData() {
         
         updateGanttMallOptions();
         updateSavedSearchesDisplay();
+        initializeFilters();
         
     } catch (error) {
         updateStatus('error', 'שגיאה בטעינה');
@@ -55,6 +56,80 @@ async function loadExcelData() {
         
         addMessage(`<div class="error-message"><strong>❌ שגיאה בטעינת הנתונים:</strong><br>${error.message}<br><br>${errorHelp}</div>`);
     }
+}
+
+// אתחול פילטרים
+function initializeFilters() {
+    // מילוי רשימת מתחמים
+    const mallFilter = document.getElementById('mallFilter');
+    if (mallFilter && productsData.length > 0) {
+        const malls = [...new Set(productsData.map(p => p['מתחם']).filter(Boolean))].sort();
+        mallFilter.innerHTML = malls.map(mall => 
+            `<option value="${mall}">${mall}</option>`
+        ).join('');
+    }
+}
+
+// פונקציות פילטרים
+function toggleFilters() {
+    const panel = document.getElementById('filtersPanel');
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function applyFilters() {
+    // קריאת ערכי הפילטרים
+    const priceMin = document.getElementById('priceMin');
+    const priceMax = document.getElementById('priceMax');
+    const mallFilter = document.getElementById('mallFilter');
+    const campaignFilter = document.getElementById('campaignFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    
+    // עדכון משתני הפילטרים הגלובליים
+    if (priceMin) activeFilters.priceMin = priceMin.value ? Number(priceMin.value) : null;
+    if (priceMax) activeFilters.priceMax = priceMax.value ? Number(priceMax.value) : null;
+    if (mallFilter) activeFilters.selectedMalls = Array.from(mallFilter.selectedOptions).map(opt => opt.value);
+    if (campaignFilter) activeFilters.campaignType = campaignFilter.value;
+    if (sortFilter) activeFilters.sortBy = sortFilter.value;
+    
+    // הפעלת חיפוש מחדש אם יש חיפוש קודם
+    const lastUserMessage = elements.messagesArea.querySelector('.message.user:last-of-type');
+    if (lastUserMessage) {
+        const lastQuery = lastUserMessage.textContent.trim();
+        elements.searchInput.value = lastQuery;
+        performSearch();
+    } else {
+        addMessage('<strong>🔧 פילטרים הוחלו!</strong><br>בצע חיפוש כדי לראות את התוצאות המסוננות.');
+    }
+    
+    toggleFilters(); // סגירת פאנל הפילטרים
+}
+
+function clearFilters() {
+    // איפוס משתני הפילטרים
+    activeFilters = {
+        priceMin: null,
+        priceMax: null,
+        selectedMalls: [],
+        campaignType: 'all',
+        sortBy: 'relevance'
+    };
+    
+    // איפוס שדות הטופס
+    const priceMin = document.getElementById('priceMin');
+    const priceMax = document.getElementById('priceMax');
+    const mallFilter = document.getElementById('mallFilter');
+    const campaignFilter = document.getElementById('campaignFilter');
+    const sortFilter = document.getElementById('sortFilter');
+    
+    if (priceMin) priceMin.value = '';
+    if (priceMax) priceMax.value = '';
+    if (mallFilter) mallFilter.selectedIndex = -1;
+    if (campaignFilter) campaignFilter.value = 'all';
+    if (sortFilter) sortFilter.value = 'relevance';
+    
+    addMessage('<strong>🧹 פילטרים נוקו!</strong><br>כל הפילטרים הוסרו. בצע חיפוש מחדש לראות תוצאות לא מסוננות.');
 }
 
 // אתחול אלמנטים בעמוד
@@ -120,6 +195,73 @@ function setupEventListeners() {
             const dropdown = document.getElementById('mallsDropdown');
             const arrow = document.querySelector('.dropdown-arrow');
             if (dropdown && arrow) {
+                const isOpen = dropdown.style.display === 'block';
+                
+                if (isOpen) {
+                    dropdown.style.display = 'none';
+                    arrow.classList.remove('open');
+                } else {
+                    dropdown.style.display = 'block';
+                    arrow.classList.add('open');
+                }
+            }
+        });
+    }
+
+    // סגירת הרשימה הנפתחת בלחיצה מחוץ לה
+    document.addEventListener('click', function(e) {
+        const container = document.querySelector('.multi-select-container');
+        if (container && !container.contains(e.target)) {
+            const dropdown = document.getElementById('mallsDropdown');
+            const arrow = document.querySelector('.dropdown-arrow');
+            if (dropdown) dropdown.style.display = 'none';
+            if (arrow) arrow.classList.remove('open');
+        }
+    });
+
+    // טיפול בטאבים
+    setupTabsEventListeners();
+}
+
+// הגדרת אירועי טאבים
+function setupTabsEventListeners() {
+    const tabSearch = document.getElementById('tabSearch');
+    const tabGantt = document.getElementById('tabGantt');
+    const tabSearchPanel = document.getElementById('tabSearchPanel');
+    const tabGanttPanel = document.getElementById('tabGanttPanel');
+
+    if (tabSearch) {
+        tabSearch.onclick = function() {
+            if (tabSearch) tabSearch.classList.add('active');
+            if (tabGantt) tabGantt.classList.remove('active');
+            if (tabSearchPanel) tabSearchPanel.style.display = 'block';
+            if (tabGanttPanel) tabGanttPanel.style.display = 'none';
+        }
+    }
+
+    if (tabGantt) {
+        tabGantt.onclick = function() {
+            if (tabGantt) tabGantt.classList.add('active');
+            if (tabSearch) tabSearch.classList.remove('active');
+            if (tabGanttPanel) tabGanttPanel.style.display = 'block';
+            if (tabSearchPanel) tabSearchPanel.style.display = 'none';
+        }
+    }
+}
+
+// אתחול המערכת בעת טעינת הדף
+function initializeSystem() {
+    initializeElements();
+    setupEventListeners();
+    
+    // טעינת הנתונים עם עיכוב קצר
+    setTimeout(() => {
+        loadExcelData();
+    }, 700);
+}
+
+// הפעלת המערכת כשהדף נטען
+window.addEventListener('load', initializeSystem); && arrow) {
                 const isOpen = dropdown.style.display === 'block';
                 
                 if (isOpen) {
