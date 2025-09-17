@@ -193,33 +193,24 @@ function applyFilters() {
             sortBy: 'relevance'
         };
     }
-    
+
     // קריאת ערכי הפילטרים
     const priceMin = document.getElementById('priceMin');
     const priceMax = document.getElementById('priceMax');
     const mallFilter = document.getElementById('mallFilter');
     const campaignFilter = document.getElementById('campaignFilter');
     const sortFilter = document.getElementById('sortFilter');
-    
+
     // עדכון משתני הפילטרים הגלובליים
     if (priceMin) activeFilters.priceMin = priceMin.value ? Number(priceMin.value) : null;
     if (priceMax) activeFilters.priceMax = priceMax.value ? Number(priceMax.value) : null;
     if (mallFilter) activeFilters.selectedMalls = Array.from(mallFilter.selectedOptions).map(opt => opt.value);
     if (campaignFilter) activeFilters.campaignType = campaignFilter.value;
     if (sortFilter) activeFilters.sortBy = sortFilter.value;
-    
-    // הפעלת חיפוש מחדש אם יש חיפוש קודם
-    const lastUserMessage = elements.messagesArea.querySelector('.message.user:last-of-type');
-    if (lastUserMessage) {
-        const lastQuery = lastUserMessage.textContent.trim();
-        elements.searchInput.value = lastQuery;
-        if (typeof performSearch === 'function') {
-            performSearch();
-        }
-    } else {
-        addMessage('<strong>🔧 פילטרים הוחלו!</strong><br>בצע חיפוש כדי לראות את התוצאות המסוננות.');
-    }
-    
+
+    // לא קוראים כאן ל-performSearch!! המשתמש יבצע חיפוש ידני אחרי עדכון הפילטרים.
+    addMessage('<strong>🔧 פילטרים הוחלו!</strong><br>בצע חיפוש כדי לראות את התוצאות המסוננות.');
+
     toggleFilters(); // סגירת פנל הפילטרים
 }
 
