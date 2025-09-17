@@ -864,8 +864,8 @@ function clearGanttForm() {
 }// מחשבון גאנט - עם תרשימים וייצוא PDF
 
 // משתנים לניהול תוכניות גאנט
-let savedGanttPlans = JSON.parse(localStorage.getItem('ganttPlans') || '[]');
-let currentGanttData = null;
+//let savedGanttPlans = JSON.parse(localStorage.getItem('ganttPlans') || '[]');
+//let currentGanttData = null;
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
