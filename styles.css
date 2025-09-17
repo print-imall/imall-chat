@@ -1,4 +1,612 @@
-/* קובץ עיצוב ראשי לחברה */
+/* קובץ עיצוב ראשי לחברה - עם שיפורים */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* כותרת עליונה */
+.header {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    padding: 24px 0 14px 0;
+    text-align: center;
+}
+
+.header h1 {
+    color: white;
+    font-size: 2.4rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 11px;
+    background: linear-gradient(135deg, #ffffff, #e3f2fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 25px;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.status-indicator.loading { 
+    background: linear-gradient(135deg, #ffc107, #ff8f00); 
+    animation: pulse 2s infinite; 
+}
+
+.status-indicator.ready { 
+    background: linear-gradient(135deg, #28a745, #20c997);
+}
+
+.status-indicator.error {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+@keyframes pulse { 
+    0%,100%{opacity:1;} 
+    50%{opacity:.7;} 
+}
+
+/* מיכל ראשי */
+.main-container {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* תפריט צד */
+.sidebar {
+    width: 285px;
+    min-width: 220px;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 25px 0 0 0;
+    transition: transform 0.3s;
+}
+
+.stats-card, .quick-info {
+    background: rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 18px 16px;
+    color: white;
+    border: none;
+    box-shadow: none;
+}
+
+.stats-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff, #f8f9fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stats-label { 
+    font-size: 15px; 
+    opacity: .92; 
+    font-weight: 500;
+}
+
+.quick-info h3 {
+    font-size:17px;
+    margin-bottom:10px;
+    font-weight:600;
+    gap:8px;
+    display:flex;
+}
+
+.quick-info p {
+    margin-bottom:7px;
+    opacity:0.92;
+    line-height:1.5;
+}
+
+/* טאבים */
+.tabs-area {
+    width:100%;
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+    background: none;
+    padding-right: 10px;
+}
+
+.tab-btn {
+    background: #f6f7fd;
+    color: #333;
+    border: none;
+    border-radius: 12px 12px 0 0;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 13px 28px;
+    cursor: pointer;
+    margin-bottom: -1px;
+    border-bottom: 2.5px solid transparent;
+    transition: background 0.2s, border-bottom 0.2s, color 0.2s;
+}
+
+.tab-btn.active {
+    background: #fff;
+    color: #4242af;
+    border-bottom: 2.5px solid #4242af;
+}
+
+.tab-panel { 
+    width: 100%; 
+}
+
+/* פאנל פילטרים */
+.filters-panel {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* אזור צ'אט */
+.chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: none;
+    margin: 0;
+}
+
+.messages-area {
+    flex: 1;
+    background: rgba(255,255,255,0.96);
+    border-radius: 14px;
+    margin-bottom: 19px;
+    padding: 30px 14px 16px 14px;
+    overflow-y: auto;
+    min-height: 340px;
+    border: 1.7px solid #d7d7ef;
+    box-shadow: 0 2px 14px 2px rgba(80,80,160,0.06);
+    transition: border 0.2s;
+}
+
+.message {
+    margin-bottom: 19px;
+    padding: 14px 15px;
+    border-radius: 13px;
+    max-width: 100%;
+    word-wrap: break-word;
+    position: relative;
+    animation: messageSlide 0.3s ease-out;
+}
+
+@keyframes messageSlide {
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+}
+
+.message.user {
+    background: linear-gradient(135deg,#007bff,#0056b3);
+    color: white;
+    margin-left: auto;
+    text-align: right;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+}
+
+.message.system {
+    background: #f8f9fa;
+    color: #495057;
+    border-left: 4px solid #007bff;
+}
+
+/* תוצאות מוצרים משופרות */
+.product-result {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    padding: 24px 16px;
+    border-radius: 14px;
+    margin: 18px 0;
+    box-shadow: 0 4px 16px rgba(40,167,69,0.2);
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40,167,69,0.3);
+}
+
+.product-compact { 
+    display: flex; 
+    gap: 32px; 
+    align-items: flex-start;
+}
+
+.product-image-compact {
+    flex-shrink: 0;
+    width: 225px;
+    max-width: 100vw;
+    display: flex;
+    justify-content: center;
+}
+
+.product-image-compact img {
+    width: 210px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 17px;
+    background: #fff;
+    border: 1.5px solid #ddd;
+    box-shadow: 0 2px 13px 0 rgba(80,80,160,0.08);
+    transition: transform 0.2s;
+}
+
+.product-image-compact img:hover {
+    transform: scale(1.05);
+}
+
+.product-info-compact {
+    flex:1;
+}
+
+.product-table-wrapper { 
+    width: 100%; 
+    overflow-x: auto;
+}
+
+.product-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: rgba(255,255,255,0.08);
+    border-radius: 9px;
+    margin: 12px 0;
+}
+
+.product-table th, .product-table td {
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.product-table th {
+    background: rgba(255,255,255,0.15);
+    font-weight: 600;
+    font-size: 15px;
+    min-width: 85px;
+}
+
+.product-table td {
+    font-size: 16.5px;
+    font-weight: 500;
+}
+
+.product-table tr:last-child td {
+    border-bottom: none;
+}
+
+.product-table .highlight-row {
+    background: rgba(255,255,255,0.12);
+}
+
+/* הדגשת מילים */
+mark {
+    background-color: #ffeb3b !important;
+    padding: 1px 2px !important;
+    border-radius: 2px !important;
+    font-weight: bold !important;
+    color: #333 !important;
+}
+
+.action-buttons-product {
+    display: flex;
+    gap: 14px;
+    margin-top: 16px;
+    justify-content: flex-end;
+}
+
+.btn-share {
+    padding: 16px 36px;
+    border: none;
+    border-radius: 22px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(135deg,#25d366,#128c7e);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 9px 0 rgba(40,167,69,0.10);
+    transition: all 0.2s;
+}
+
+.btn-share:hover {
+    transform: translateY(-1px); 
+    box-shadow: 0 4px 13px 0 rgba(40,167,69,0.13);
+}
+
+/* אזור חיפוש משופר */
+.input-area {
+    display: flex;
+    gap: 18px;
+    background: rgba(255,255,255,0.97);
+    padding: 24px 12px 24px 12px;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 250px;
+    padding: 18px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 27px;
+    font-size: 21px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.10);
+    transform: scale(1.02);
+}
+
+.search-btn, .clear-btn {
+    padding: 18px 32px;
+    font-size: 21px;
+    font-weight: 700;
+    border-radius: 27px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.search-btn {
+    background: linear-gradient(135deg,#007bff,#0056b3);
+    color: white;
+    margin-right: 4px;
+}
+
+.search-btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.clear-btn {
+    background: linear-gradient(135deg,#6c757d,#495057);
+    color: white;
+}
+
+.clear-btn:hover, .search-btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.error-message {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    padding: 17px;
+    border-radius: 13px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 10px rgba(220,53,69,0.3);
+}
+
+/* גאנט */
+.gantt-bar {
+    margin:8px 0 2px 0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.gantt-bar-inner {
+    min-width:28px;
+    height:26px;
+    background:linear-gradient(92deg,#28a745,#20c997);
+    border-radius:7px;
+    text-align:center;
+    padding-top:3px;
+    font-weight:600;
+    color:#fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.gantt-bar-inner:hover {
+    transform: scale(1.05);
+}
+
+.gantt-bar-label {
+    font-size:15px;
+    color:#222;
+}
+
+.gantt-controls {
+    background: rgba(255,255,255,0.95);
+    padding: 20px 15px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.gantt-form-group {
+    margin-bottom: 15px;
+}
+
+.gantt-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.gantt-form-group select, .gantt-form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.gantt-form-group select:focus, .gantt-form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.multi-select-container {
+    position: relative;
+}
+
+.multi-select-display {
+    min-height: 45px;
+    padding: 10px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.multi-select-display:hover {
+    border-color: #007bff;
+}
+
+.selected-items {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.selected-item {
+    background: #007bff;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.selected-item .remove {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.dropdown-arrow {
+    margin-left: 10px;
+    transition: transform 0.2s;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+.multi-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.multi-select-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.multi-select-option:hover {
+    background: #f8f9fa;
+}
+
+.multi-select-option input[type="checkbox"] {
+    margin: 0;
+    width: auto;
+}
+
+/* חיפושים שמורים */
+.saved-searches {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.saved-search-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    margin: 5px 0;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.saved-search-item:hover {
+    background: #e9ecef;
+    transform: translateX(2px);
+}
+
+.saved-search-text {
+    flex: 1;
+    font-size: 14/* קובץ עיצוב ראשי לחברה */
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
