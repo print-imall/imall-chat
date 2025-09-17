@@ -1288,6 +1288,7 @@ function exportGanttToPDF(withoutPrices = false) {
         alert('אין נתוני גאנט לייצוא');
         return;
     }
+}
     
     const printWindow = window.open('', '', 'height=800,width=1000');
     const { finalMalls, mallSums, mallCounts, type, budget } = currentGanttData;
