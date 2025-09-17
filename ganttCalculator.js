@@ -431,7 +431,7 @@ function exportGanttToPDF(withoutPrices = false) {
     let totalCost = Object.values(mallSums).reduce((a, b) => a + b, 0);
     let totalProducts = Object.values(mallCounts).reduce((a, b) => a + b, 0);
     
-    printWindow.document.write(`
+    printWindow.document.write(`)
         <html dir="rtl">
         <head>
             <title>תוכנית גאנט תקציב - איימולון</title>
