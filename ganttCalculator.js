@@ -1,17 +1,26 @@
 // מחשבון גנט - עם תרשימים ויצוא PDF
 
 // משתנים לניהול תוכניות גנט - משתמשים במשתנים הגלובליים הקיימים
-var savedGanttPlans = []; // אם לא קיים כבר
+var savedGanttPlans = []; 
 var currentGanttData = null; 
 
-// וידוא שהמשתנים הגלובליים קיימים
-if (typeof selectedMalls === 'undefined') {
-    var selectedMalls = new Set();
+// פונקציה לוידוא שהמשתנים הגלובליים קיימים
+function ensureGlobalVariables() {
+    if (typeof window !== 'undefined') {
+        if (!window.selectedMalls) {
+            window.selectedMalls = new Set();
+        }
+        if (!window.allMalls) {
+            window.allMalls = [];
+        }
+    }
 }
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
     console.log('מעדכן רשימת מתחמים לגנט...');
+    
+    ensureGlobalVariables(); // וידוא שהמשתנים קיימים
     
     if (!productsData || !Array.isArray(productsData) || productsData.length === 0) {
         console.log('אין נתוני מוצרים');
@@ -26,16 +35,12 @@ function updateGanttMallOptions() {
         }
     });
     
-    // עדכון המשתנה הגלובלי הקיים במקום יצירת חדש
-    if (typeof allMalls !== 'undefined') {
-        allMalls.length = 0; // ניקוי המערך הקיים
-        Array.from(allMallsSet).sort().forEach(mall => allMalls.push(mall));
-    } else {
-        window.allMalls = Array.from(allMallsSet).sort();
-        allMalls = window.allMalls;
-    }
+    // השתמש במשתנה הגלובלי
+    const globalAllMalls = typeof window !== 'undefined' && window.allMalls ? window.allMalls : allMalls;
+    globalAllMalls.length = 0;
+    Array.from(allMallsSet).sort().forEach(mall => globalAllMalls.push(mall));
     
-    console.log('מתחמים שנמצאו:', allMalls);
+    console.log('מתחמים שנמצאו:', globalAllMalls);
     updateMallsDropdown();
 }
 
@@ -49,7 +54,11 @@ function updateMallsDropdown() {
     
     dropdown.innerHTML = '';
     
-    if (allMalls.length === 0) {
+    // השתמש במשתנים הגלובליים
+    const mallsToUse = (typeof window !== 'undefined' && window.allMalls) ? window.allMalls : (typeof allMalls !== 'undefined' ? allMalls : []);
+    const selectedMallsToUse = (typeof window !== 'undefined' && window.selectedMalls) ? window.selectedMalls : (typeof selectedMalls !== 'undefined' ? selectedMalls : new Set());
+    
+    if (mallsToUse.length === 0) {
         dropdown.innerHTML = '<div class="multi-select-option">אין מתחמים זמינים</div>';
         return;
     }
