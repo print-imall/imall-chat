@@ -83,21 +83,10 @@ function displayAllProductResults(items) {
             messagesArea.innerHTML = '';
         }
         
-        // הצג רק את התוצאה הראשונה
-        displayProductResult(items[0], searchTerms, 1, items.length);
-        
-        // אם יש יותר מתוצאה אחת, הוסף כפתור "עוד תוצאות"
-        if (items.length > 1) {
-            addMessage(`
-                <div style="text-align: center; padding: 20px; background: rgba(23, 162, 184, 0.1); border-radius: 12px; margin: 20px 0;">
-                    <h4 style="color: #17a2b8; margin-bottom: 15px;">📋 תוצאות נוספות</h4>
-                    <p style="margin-bottom: 15px; color: #666;">נמצאו עוד ${items.length - 1} תוצאות לחיפוש "${currentQuery}"</p>
-                    <button onclick="showAllResults()" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        📄 הצג את כל התוצאות (${items.length})
-                    </button>
-                </div>
-            `);
-        }
+        // הצג את כל התוצאות
+        items.forEach((item, index) => {
+            displayProductResult(item, searchTerms, index + 1, items.length);
+        });
     }
 }
 
