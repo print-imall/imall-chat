@@ -4,6 +4,15 @@
 let savedGanttPlans = JSON.parse(localStorage.getItem('ganttPlans') || '[]');
 let currentGanttData = null;
 
+// משתנים גלובליים לניהול מתחמים
+if (typeof window !== 'undefined') {
+    if (!window.allMalls) window.allMalls = [];
+    if (!window.selectedMalls) window.selectedMalls = new Set();
+} else {
+    if (typeof allMalls === 'undefined') var allMalls = [];
+    if (typeof selectedMalls === 'undefined') var selectedMalls = new Set();
+}
+
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
     console.log('מעדכן רשימת מתחמים לגנט...');
