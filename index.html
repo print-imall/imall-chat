@@ -56,17 +56,10 @@
             <div id="tabSearchPanel" class="tab-panel" style="display:block;">
                 <div class="messages-area" id="messagesArea">
                     <!-- מסך ברוכים הבאים נקי -->
-                    <div class="message system" id="welcomeMessage">
-                        <div style="text-align: center; padding: 40px 20px;">
-                            <h2 style="color: #007bff; margin-bottom: 20px;">🔍 חיפוש מוצרים</h2>
-                            <p style="font-size: 18px; color: #666; margin-bottom: 30px;">הכנס מילת חיפוש למציאת מוצרים במאגר</p>
-                            <button onclick="showHelp()" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                ❓ איך המערכת עובדת?
-                            </button>
-                        </div>
-                    </div>
                 </div>
-                <div class="input-area">
+                
+                <!-- שורת חיפוש קבועה בתחתית -->
+                <div class="input-area" style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); border-top: 2px solid #e9ecef; box-shadow: 0 -2px 20px rgba(0,0,0,0.1);">
                     <input type="text" id="searchInput" class="search-input"
                         placeholder="חפש מוצר (פלטפורמה, מקט, מתחם, קמפיין...)"
                         disabled>
@@ -85,7 +78,7 @@
                 </div>
                 
                 <!-- חיפושים שמורים -->
-                <div style="background: rgba(255,255,255,0.95); padding: 15px; margin-bottom: 10px; border-radius: 12px; display: none;" id="savedSearchesContainer">
+                <div style="background: rgba(255,255,255,0.95); padding: 15px; margin-bottom: 120px; border-radius: 12px; display: none;" id="savedSearchesContainer">
                     <h4 style="margin: 0 0 10px 0; color: #333;">💾 חיפושים שמורים</h4>
                     <div class="saved-searches" id="savedSearchesList"></div>
                 </div>
@@ -151,53 +144,72 @@
     <script src="main.js"></script>
     
     <script>
-        // פונקציה להצגת עזרה
+        // משתנה לבדיקה אם העזרה פתוחה
+        let isHelpOpen = false;
+        
+        // פונקציה להצגת/סגירת עזרה
         function showHelp() {
-            const helpMessage = `
-                <div style="background: rgba(23, 162, 184, 0.1); padding: 20px; border-radius: 12px; border-right: 4px solid #17a2b8;">
-                    <h3 style="color: #17a2b8; margin-top: 0;">🤖 איך המערכת עובדת?</h3>
-                    
-                    <div style="background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #28a745;">
-                        <h4 style="color: #28a745; margin-top: 0;">📊 סטטוס המערכת:</h4>
-                        <p style="margin-bottom: 8px;"><strong>✅ המערכת מוכנה לשימוש!</strong></p>
-                        <p style="margin-bottom: 8px;">נטענו בהצלחה <strong>${document.getElementById('productCount').textContent} מוצרים</strong> ממאגר</p>
-                        <p style="margin-bottom: 0;"><strong>🎉 אתה יכול עכשיו להתחיל לחפש מוצרים!</strong></p>
+            if (isHelpOpen) {
+                // אם העזרה פתוחה, סגור אותה
+                clearHistory();
+                isHelpOpen = false;
+            } else {
+                // אם העזרה סגורה, פתח אותה
+                const helpMessage = `
+                    <div style="background: rgba(23, 162, 184, 0.1); padding: 20px; border-radius: 12px; border-right: 4px solid #17a2b8;">
+                        <h3 style="color: #17a2b8; margin-top: 0;">🤖 איך המערכת עובדת?</h3>
+                        
+                        <div style="background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #28a745;">
+                            <h4 style="color: #28a745; margin-top: 0;">📊 סטטוס המערכת:</h4>
+                            <p style="margin-bottom: 8px;"><strong>✅ המערכת מוכנה לשימוש!</strong></p>
+                            <p style="margin-bottom: 8px;">נטענו בהצלחה <strong>${document.getElementById('productCount').textContent} מוצרים</strong> ממאגר</p>
+                            <p style="margin-bottom: 0;"><strong>🎉 אתה יכול עכשיו להתחיל לחפש מוצרים!</strong></p>
+                        </div>
+                        
+                        <div style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #ffc107;">
+                            <h4 style="color: #856404; margin-top: 0;">📝 שדות זמינים בקובץ:</h4>
+                            <code style="font-size: 13px; background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; display: block; word-break: break-all;">מתחם, מקט, פלטפורמה, מחיר מכירה, מבקרים, גובה, רוחב, גובה2, רוחב2, קמפיין</code>
+                        </div>
+                        
+                        <h4 style="color: #333; margin-bottom: 10px;">📋 שלבי החיפוש:</h4>
+                        <p>• <strong>שלב 1:</strong> המערכת מחפשת תחילה בשדה "פלטפורמה"</p>
+                        <p>• <strong>שלב 2:</strong> אם לא נמצאו תוצאות, מחפשת בכל השדות</p>
+                        <p>• <strong>שלב 3:</strong> מציגה עד 30 התוצאות הרלוונטיות ביותר</p>
+                        
+                        <h4 style="color: #333; margin-bottom: 10px;">🔍 דוגמאות חיפוש:</h4>
+                        <p>• <strong>לפי פלטפורמה:</strong> "דיגיטלי", "פרינט"</p>
+                        <p>• <strong>לפי מק"ט:</strong> "12345", "ABC-123"</p>
+                        <p>• <strong>לפי מתחם:</strong> "קניון עזריאלי", "רמת אביב"</p>
+                        <p>• <strong>לפי קמפיין:</strong> "קיץ 2024", "מבצע חורף"</p>
+                        
+                        <h4 style="color: #333; margin-bottom: 10px;">✨ תכונות נוספות:</h4>
+                        <p>• <strong>💾 שמירת חיפושים:</strong> לחץ "שמור" לשמירת החיפוש הנוכחי</p>
+                        <p>• <strong>📱 שליחה בוואטסאפ:</strong> שתף פרטי מוצר ישירות</p>
+                        <p>• <strong>📊 גנט תקציב:</strong> חישוב תקציב לפי מתחמים נבחרים</p>
+                        <p>• <strong>🎯 הדגשת תוצאות:</strong> מילות החיפוש מודגשות בתוצאות</p>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <em style="color: #666;">לחץ שוב על כפתור העזרה לסגירה</em>
+                        </div>
                     </div>
-                    
-                    <div style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #ffc107;">
-                        <h4 style="color: #856404; margin-top: 0;">📝 שדות זמינים בקובץ:</h4>
-                        <code style="font-size: 13px; background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; display: block; word-break: break-all;">מתחם, מקט, פלטפורמה, מחיר מכירה, מבקרים, גובה, רוחב, גובה2, רוחב2, קמפיין</code>
-                    </div>
-                    
-                    <h4 style="color: #333; margin-bottom: 10px;">📋 שלבי החיפוש:</h4>
-                    <p>• <strong>שלב 1:</strong> המערכת מחפשת תחילה בשדה "פלטפורמה"</p>
-                    <p>• <strong>שלב 2:</strong> אם לא נמצאו תוצאות, מחפשת בכל השדות</p>
-                    <p>• <strong>שלב 3:</strong> מציגה עד 30 התוצאות הרלוונטיות ביותר</p>
-                    
-                    <h4 style="color: #333; margin-bottom: 10px;">🔍 דוגמאות חיפוש:</h4>
-                    <p>• <strong>לפי פלטפורמה:</strong> "דיגיטלי", "פרינט"</p>
-                    <p>• <strong>לפי מק"ט:</strong> "12345", "ABC-123"</p>
-                    <p>• <strong>לפי מתחם:</strong> "קניון עזריאלי", "רמת אביב"</p>
-                    <p>• <strong>לפי קמפיין:</strong> "קיץ 2024", "מבצע חורף"</p>
-                    
-                    <h4 style="color: #333; margin-bottom: 10px;">✨ תכונות נוספות:</h4>
-                    <p>• <strong>💾 שמירת חיפושים:</strong> לחץ "שמור" לשמירת החיפוש הנוכחי</p>
-                    <p>• <strong>📱 שליחה בוואטסאפ:</strong> שתף פרטי מוצר ישירות</p>
-                    <p>• <strong>📊 גנט תקציב:</strong> חישוב תקציב לפי מתחמים נבחרים</p>
-                    <p>• <strong>🎯 הדגשת תוצאות:</strong> מילות החיפוש מודגשות בתוצאות</p>
-                    
-                    <div style="text-align: center; margin-top: 20px;">
-                        <button onclick="closeHelp()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">✅ הבנתי</button>
-                    </div>
-                </div>
-            `;
-            
-            addMessage(helpMessage);
+                `;
+                
+                addMessage(helpMessage);
+                isHelpOpen = true;
+            }
         }
         
         // פונקציה לסגירת העזרה (חזרה למסך ראשי)
         function closeHelp() {
             clearHistory();
+            isHelpOpen = false;
+        }
+        
+        // עדכון פונקציית clearHistory כדי לעדכן את הסטטוס
+        const originalClearHistory = clearHistory;
+        clearHistory = function() {
+            originalClearHistory();
+            isHelpOpen = false;
         }
     </script>
 </body>
