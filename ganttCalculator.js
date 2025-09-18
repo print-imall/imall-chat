@@ -1,4 +1,6 @@
-// מחשבון גנט - עם תרשימים ויצוא PDF
+<thead>
+                    <tr>
+                        <th>// מחשבון גנט - עם תרשימים ויצוא PDF
 
 // משתנים לניהול תוכניות גנט
 let savedGanttPlans = JSON.parse(localStorage.getItem('ganttPlans') || '[]');
@@ -239,11 +241,23 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
     let totalProducts = 0;
     const maxCost = Math.max(...finalMalls.map(mall => mallSums[mall] || 0));
     
+    // חישוב פלטפורמות לכל מתחם
+    let mallPlatforms = {};
+    finalMalls.forEach(mall => {
+        mallPlatforms[mall] = new Set();
+        productsData.forEach(p => {
+            if (p['מתחם'] && p['מתחם'].trim() === mall && p['פלטפורמה']) {
+                mallPlatforms[mall].add(p['פלטפורמה']);
+            }
+        });
+    });
+    
     let html = `
         <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1);" id="ganttReportContent">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h4 style="margin:0; color:#007bff;">📊 תוצאות חישוב תקציב גנט</h4>
                 <div style="display: flex; gap: 10px;">
+                    <button onclick="editGanttResults()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">✏️ ערוך תוצאות</button>
                     <button onclick="saveGanttPlan()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">💾 שמור תוכנית</button>
                     <button onclick="exportGanttToPDF(false)" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">📄 PDF עם מחירים</button>
                     <button onclick="exportGanttToPDF(true)" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">📄 PDF ללא מחירים</button>
@@ -276,9 +290,10 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                     <tr style="background:#007bff; color:white;">
                         <th style="padding:12px; text-align:right; border-radius:8px 0 0 0;">מתחם</th>
                         <th style="padding:12px; text-align:center;">מוצרים</th>
+                        <th style="padding:12px; text-align:center;">פלטפורמות</th>
                         <th style="padding:12px; text-align:center;">אחוז מהתקציב</th>
-                        <th style="padding:12px; text-align:center; border-radius:0 8px 0 0;">עלות (₪)</th>
-                        <th style="padding:12px; text-align:center;">פעולות</th>
+                        <th style="padding:12px; text-align:center;">עלות (₪)</th>
+                        <th style="padding:12px; text-align:center; border-radius:0 8px 0 0;">פעולות</th>
                     </tr>
                 </thead>
                 <tbody id="ganttTableBody">
@@ -295,14 +310,17 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
         
         const percentage = totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : 0;
         const bgColor = index % 2 === 0 ? '#f8f9fa' : 'white';
+        const platforms = Array.from(mallPlatforms[mall] || []).join(', ') || 'לא זמין';
         
         html += `
-            <tr style="background:${bgColor};" data-mall="${mall}">
+            <tr style="background:${bgColor};" data-mall="${mall}" id="mall-row-${index}">
                 <td style="padding:10px; font-weight:500;">${mall}</td>
                 <td style="padding:10px; text-align:center;">${count}</td>
+                <td style="padding:10px; text-align:center; font-size:12px; max-width:150px; word-wrap:break-word;">${platforms}</td>
                 <td style="padding:10px; text-align:center;" id="percentage-${index}">${percentage}%</td>
                 <td style="padding:10px; text-align:center; font-weight:600; color:#007bff;">${cost.toLocaleString()}</td>
                 <td style="padding:10px; text-align:center;">
+                    <button onclick="editMallPlatforms('${mall}', ${index})" style="background: #17a2b8; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 2px;">✏️ ערוך</button>
                     <button onclick="removeMallFromGantt('${mall}')" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ הסר</button>
                 </td>
             </tr>
@@ -327,6 +345,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                     <tr style="background:#28a745; color:white; font-weight:bold;">
                         <td style="padding:12px;">סה"כ</td>
                         <td style="text-align:center; padding:12px;">${totalProducts}</td>
+                        <td style="text-align:center; padding:12px;">-</td>
                         <td style="text-align:center; padding:12px;">100%</td>
                         <td style="text-align:center; padding:12px;">${totalCost.toLocaleString()}</td>
                         <td style="padding:12px;"></td>
@@ -527,6 +546,7 @@ function exportGanttToPDF(withoutPrices = false) {
                     <tr>
                         <th>מתחם</th>
                         <th>מספר מוצרים</th>
+                        <th>פלטפורמות</th>
                         <th>מידות (רוחב×גובה)</th>
                         ${!withoutPrices ? '<th>אחוז מהתקציב</th><th>עלות (₪)</th>' : ''}
                     </tr>
@@ -538,6 +558,15 @@ function exportGanttToPDF(withoutPrices = false) {
         const cost = mallSums[mall] || 0;
         const count = mallCounts[mall] || 0;
         const percentage = totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : 0;
+        
+        // מציאת פלטפורמות למתחם
+        const platformsSet = new Set();
+        productsData.forEach(p => {
+            if (p['מתחם'] && p['מתחם'].trim() === mall && p['פלטפורמה']) {
+                platformsSet.add(p['פלטפורמה']);
+            }
+        });
+        const platformsText = Array.from(platformsSet).join(', ') || 'לא זמין';
         
         // מציאת מוצר לדוגמה מהמתחם הזה למידות
         const sampleProduct = productsData.find(p => p['מתחם'] && p['מתחם'].trim() === mall);
@@ -562,6 +591,7 @@ function exportGanttToPDF(withoutPrices = false) {
             <tr>
                 <td>${mall}</td>
                 <td>${count}</td>
+                <td style="font-size: 10px; max-width: 150px; word-wrap: break-word;">${platformsText}</td>
                 <td>${dimensionsText}</td>
                 ${!withoutPrices ? `<td>${percentage}%</td><td>${cost.toLocaleString()}</td>` : ''}
             </tr>
@@ -572,6 +602,7 @@ function exportGanttToPDF(withoutPrices = false) {
                     <tr class="total-row">
                         <td>סה"כ</td>
                         <td>${totalProducts}</td>
+                        <td>-</td>
                         <td>-</td>
                         ${!withoutPrices ? `<td>100%</td><td>${totalCost.toLocaleString()}</td>` : ''}
                     </tr>
@@ -611,7 +642,139 @@ function exportGanttToPDF(withoutPrices = false) {
     }
 }
 
-// פונקציה לניקוי טופס גנט
+// פונקציה לעריכת פלטפורמות של מתחם
+function editMallPlatforms(mall, rowIndex) {
+    // מציאת כל הפלטפורמות הקיימות במתחם
+    const mallPlatformsSet = new Set();
+    productsData.forEach(p => {
+        if (p['מתחם'] && p['מתחם'].trim() === mall && p['פלטפורמה']) {
+            mallPlatformsSet.add(p['פלטפורמה']);
+        }
+    });
+    
+    const platformsList = Array.from(mallPlatformsSet);
+    
+    if (platformsList.length === 0) {
+        alert('לא נמצאו פלטפורמות עבור מתחם זה');
+        return;
+    }
+    
+    // יצירת חלון עריכה
+    const editHtml = `
+        <div id="editPlatformsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 70%; overflow-y: auto;">
+                <h3 style="margin-top: 0; color: #007bff;">✏️ עריכת פלטפורמות - ${mall}</h3>
+                <p style="color: #666;">בחר את הפלטפורמות שברצונך לכלול בחישוב:</p>
+                
+                <div id="platformsCheckboxes" style="margin: 20px 0;">
+                    ${platformsList.map(platform => `
+                        <label style="display: block; margin: 10px 0; padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer;">
+                            <input type="checkbox" checked value="${platform}" style="margin-left: 8px;">
+                            <span style="font-weight: 500;">${platform}</span>
+                        </label>
+                    `).join('')}
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px;">
+                    <button onclick="applyPlatformChanges('${mall}', ${rowIndex})" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-left: 10px;">✅ החל שינויים</button>
+                    <button onclick="closeEditModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">❌ ביטול</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', editHtml);
+}
+
+// פונקציה להחלת שינויי הפלטפורמות
+function applyPlatformChanges(mall, rowIndex) {
+    const checkboxes = document.querySelectorAll('#platformsCheckboxes input[type="checkbox"]');
+    const selectedPlatforms = Array.from(checkboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+    
+    if (selectedPlatforms.length === 0) {
+        alert('יש לבחור לפחות פלטפורמה אחת');
+        return;
+    }
+    
+    // חישוב מחדש עם הפלטפורמות הנבחרות
+    let newMallSum = 0;
+    let newMallCount = 0;
+    
+    const type = document.getElementById('ganttType').value;
+    
+    productsData.forEach(p => {
+        if (p['מתחם'] && p['מתחם'].trim() === mall && 
+            p['פלטפורמה'] && selectedPlatforms.includes(p['פלטפורמה'])) {
+            
+            // סינון לפי סוג קמפיין
+            const platformStr = String(p['פלטפורמה'] || '').toLowerCase();
+            if (type === 'פרינט') {
+                if (!platformStr.includes('פרינט') && !platformStr.includes('print')) return;
+            } else if (type === 'דיגיטלי') {
+                if (!platformStr.includes('דיגיטלי') && !platformStr.includes('digital')) return;
+            }
+            
+            let price = Number(String(p['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
+            if (isNaN(price)) price = 0;
+            
+            newMallSum += price;
+            newMallCount++;
+        }
+    });
+    
+    // עדכון הנתונים
+    if (currentGanttData) {
+        currentGanttData.mallSums[mall] = newMallSum;
+        currentGanttData.mallCounts[mall] = newMallCount;
+    }
+    
+    // עדכון התצוגה
+    const row = document.getElementById(`mall-row-${rowIndex}`);
+    if (row) {
+        const cells = row.querySelectorAll('td');
+        cells[1].textContent = newMallCount; // מוצרים
+        cells[2].textContent = selectedPlatforms.join(', '); // פלטפורמות
+        cells[4].textContent = newMallSum.toLocaleString(); // עלות
+    }
+    
+    // עדכון אחוזים
+    recalculatePercentages();
+    
+    closeEditModal();
+    
+    addSystemNotification(`<strong>✏️ פלטפורמות עודכנו</strong><br>מתחם "${mall}" עודכן עם ${selectedPlatforms.length} פלטפורמות נבחרות.`);
+}
+
+// פונקציה לחישוב אחוזים מחדש
+function recalculatePercentages() {
+    if (!currentGanttData) return;
+    
+    const totalCost = Object.values(currentGanttData.mallSums).reduce((a, b) => a + b, 0);
+    
+    Object.keys(currentGanttData.mallSums).forEach((mall, index) => {
+        const cost = currentGanttData.mallSums[mall] || 0;
+        const percentage = totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : 0;
+        const percentageElement = document.getElementById(`percentage-${index}`);
+        if (percentageElement) {
+            percentageElement.textContent = percentage + '%';
+        }
+    });
+}
+
+// פונקציה לסגירת חלון העריכה
+function closeEditModal() {
+    const modal = document.getElementById('editPlatformsModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// פונקציה כללית לעריכת תוצאות הגנט
+function editGanttResults() {
+    addSystemNotification(`<strong>✏️ מצב עריכה</strong><br>השתמש בכפתורים "ערוך" ו"הסר" בטבלה לעריכת התוצאות.`);
+}
 function clearGanttForm() {
     selectedMalls.clear();
     updateMallsDisplay();
