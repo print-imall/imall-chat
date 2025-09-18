@@ -1,9 +1,9 @@
 // מחשבון גנט - עם תרשימים ויצוא PDF
 
-// משתנים לניהול תוכניות גנט
-var savedGanttPlans = [];
-var currentGanttData = null;
-var ganttAllMalls = [];
+// משתנים לניהול תוכניות גנט - הגבלה לסקופ הגנט בלבד
+var ganttSavedPlans = [];
+var ganttCurrentData = null;
+var ganttMalls = [];
 var ganttSelectedMalls = new Set();
 
 // פונקציה לעדכון רשימת המתחמים
@@ -23,8 +23,8 @@ function updateGanttMallOptions() {
         }
     });
     
-    ganttAllMalls = Array.from(allMallsSet).sort();
-    console.log('מתחמים שנמצאו:', ganttAllMalls);
+    ganttMalls = Array.from(allMallsSet).sort();
+    console.log('מתחמים שנמצאו:', ganttMalls);
     updateMallsDropdown();
 }
 
@@ -38,7 +38,7 @@ function updateMallsDropdown() {
     
     dropdown.innerHTML = '';
     
-    if (ganttAllMalls.length === 0) {
+    if (ganttMalls.length === 0) {
         dropdown.innerHTML = '<div class="multi-select-option">אין מתחמים זמינים</div>';
         return;
     }
@@ -47,7 +47,7 @@ function updateMallsDropdown() {
     const selectAllOption = document.createElement('div');
     selectAllOption.className = 'multi-select-option';
     selectAllOption.innerHTML = `
-        <input type="checkbox" id="selectAll" ${ganttSelectedMalls.size === ganttAllMalls.length ? 'checked' : ''}>
+        <input type="checkbox" id="selectAll" ${ganttSelectedMalls.size === ganttMalls.length ? 'checked' : ''}>
         <label for="selectAll"><strong>בחר הכל</strong></label>
     `;
     selectAllOption.addEventListener('click', function(e) {
@@ -58,7 +58,7 @@ function updateMallsDropdown() {
             ganttSelectedMalls.clear();
         } else {
             ganttSelectedMalls.clear();
-            ganttAllMalls.forEach(mall => ganttSelectedMalls.add(mall));
+            ganttMalls.forEach(mall => ganttSelectedMalls.add(mall));
         }
         updateMallsDisplay();
         updateMallsDropdown();
@@ -72,7 +72,7 @@ function updateMallsDropdown() {
     dropdown.appendChild(separator);
     
     // אפשרויות המתחמים
-    ganttAllMalls.forEach(mall => {
+    ganttMalls.forEach(mall => {
         const option = document.createElement('div');
         option.className = 'multi-select-option';
         option.innerHTML = `
@@ -382,7 +382,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, typ
 
 // פונקציה לשמירת תוכנית
 function saveGanttPlan() {
-    if (!currentGanttData) {
+    if (!ganttCurrentData) {
         alert('אין תוכנית גנט לשמירה');
         return;
     }
@@ -393,25 +393,25 @@ function saveGanttPlan() {
     const planToSave = {
         id: Date.now(),
         name: planName,
-        data: currentGanttData,
+        data: ganttCurrentData,
         savedAt: new Date().toISOString()
     };
     
-    savedGanttPlans.unshift(planToSave);
-    if (savedGanttPlans.length > 10) savedGanttPlans.pop();
+    ganttSavedPlans.unshift(planToSave);
+    if (ganttSavedPlans.length > 10) ganttSavedPlans.pop();
     
     alert('התוכנית נשמרה בהצלחה!');
 }
 
 // פונקציה ליצוא PDF
 function exportGanttToPDF(withoutPrices = false) {
-    if (!currentGanttData) {
+    if (!ganttCurrentData) {
         alert('אין נתוני גנט ליצוא');
         return;
     }
     
     const printWindow = window.open('', '', 'height=800,width=1000');
-    const { finalMalls, mallSums, mallCounts, mallProducts, type, budget } = currentGanttData;
+    const { finalMalls, mallSums, mallCounts, mallProducts, type, budget } = ganttCurrentData;
     let totalCost = Object.values(mallSums).reduce((a, b) => a + b, 0);
     let totalProducts = Object.values(mallCounts).reduce((a, b) => a + b, 0);
     
@@ -507,5 +507,5 @@ function clearGanttForm() {
     if (ganttBudget) ganttBudget.value = '';
     if (ganttResults) ganttResults.innerHTML = '';
     
-    currentGanttData = null;
+    ganttCurrentData = null;
 }
