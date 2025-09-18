@@ -230,6 +230,7 @@ function calculateGanttBudget() {
         finalMalls,
         mallSums,
         mallCounts,
+        mallProducts, // הוסף את המוצרים שנכללו בפועל
         type,
         budget,
         selectedMalls: Array.from(ganttSelectedMalls),
@@ -245,13 +246,34 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
     let totalCost = 0;
     let totalProducts = 0;
     
-    // חישוב פלטפורמות לכל מתחם
+    // חישוב פלטפורמות שנכללו בפועל בגנט לכל מתחם
     let mallPlatforms = {};
+    let mallProducts = {}; // נוסיף גם מערך המוצרים שנכללו
+    
     finalMalls.forEach(mall => {
         mallPlatforms[mall] = new Set();
+        mallProducts[mall] = [];
+        
         productsData.forEach(p => {
-            if (p['מתחם'] && p['מתחם'].trim() === mall && p['קמפיין']) {
-                mallPlatforms[mall].add(p['קמפיין']);
+            if (p['מתחם'] && p['מתחם'].trim() === mall) {
+                const campaignStr = String(p['קמפיין'] || '').trim();
+                
+                // אותו תנאי סינון כמו בחישוב
+                let includeProduct = true;
+                if (type === 'פרינט') {
+                    if (campaignStr !== 'פרינט') {
+                        includeProduct = false;
+                    }
+                } else if (type === 'דיגיטלי') {
+                    if (campaignStr !== 'דיגטלי') {
+                        includeProduct = false;
+                    }
+                }
+                
+                if (includeProduct && p['פלטפורמה']) {
+                    mallPlatforms[mall].add(p['פלטפורמה']);
+                    mallProducts[mall].push(p); // שמור את המוצר עבור ה-PDF
+                }
             }
         });
     });
@@ -389,7 +411,7 @@ function exportGanttToPDF(withoutPrices = false) {
     }
     
     const printWindow = window.open('', '', 'height=800,width=1000');
-    const { finalMalls, mallSums, mallCounts, type, budget } = currentGanttData;
+    const { finalMalls, mallSums, mallCounts, mallProducts, type, budget } = currentGanttData;
     let totalCost = Object.values(mallSums).reduce((a, b) => a + b, 0);
     let totalProducts = Object.values(mallCounts).reduce((a, b) => a + b, 0);
     
@@ -398,37 +420,69 @@ function exportGanttToPDF(withoutPrices = false) {
         <head>
             <title>תוכנית גנט תקציב</title>
             <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { padding: 8px; border: 1px solid #ddd; text-align: right; }
-                th { background-color: #007bff; color: white; }
+                body { font-family: Arial, sans-serif; margin: 20px; font-size: 12px; }
+                h1 { text-align: center; color: #007bff; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { padding: 6px; border: 1px solid #ddd; text-align: right; font-size: 11px; }
+                th { background-color: #007bff; color: white; font-weight: bold; }
+                tr:nth-child(even) { background-color: #f8f9fa; }
+                .summary { background: #f8f9fa; padding: 10px; margin-bottom: 20px; }
             </style>
         </head>
         <body>
             <h1>תוכנית גנט תקציב</h1>
-            <p>תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
+            <div class="summary">
+                <p><strong>תאריך:</strong> ${new Date().toLocaleDateString('he-IL')} | <strong>סוג קמפיין:</strong> ${type === 'all' ? 'משולב' : type}</p>
+                <p><strong>מספר מתחמים:</strong> ${finalMalls.length} | <strong>סה"כ מוצרים:</strong> ${totalProducts}</p>
+                ${!withoutPrices ? `<p><strong>סה"כ תקציב:</strong> ${totalCost.toLocaleString()} ₪</p>` : ''}
+            </div>
+            
             <table>
-                <tr><th>מתחם</th><th>מוצרים</th>${!withoutPrices ? '<th>עלות</th>' : ''}</tr>
+                <thead>
+                    <tr>
+                        <th>מתחם</th>
+                        <th>פלטפורמה</th>
+                        <th>גובה</th>
+                        <th>רוחב</th>
+                        <th>גובה2</th>
+                        <th>רוחב2</th>
+                        <th>מבקרים</th>
+                        ${!withoutPrices ? '<th>מחיר</th>' : ''}
+                    </tr>
+                </thead>
+                <tbody>
     `);
     
+    // יצירת טבלה מפורטת של כל המוצרים
     finalMalls.forEach(mall => {
-        const cost = mallSums[mall] || 0;
-        const count = mallCounts[mall] || 0;
-        printWindow.document.write(`
-            <tr>
-                <td>${mall}</td>
-                <td>${count}</td>
-                ${!withoutPrices ? `<td>${cost.toLocaleString()}</td>` : ''}
-            </tr>
-        `);
+        const products = mallProducts[mall] || [];
+        
+        products.forEach((product, index) => {
+            const height1 = product['גובה'] || '-';
+            const width1 = product['רוחב'] || '-';
+            const height2 = product['גובה2'] || '-';
+            const width2 = product['רוחב2'] || '-';
+            const visitors = product['מבקרים'] || '-';
+            const platform = product['פלטפורמה'] || '-';
+            const price = !withoutPrices ? (product['מחיר מכירה'] || '0') : '';
+            
+            printWindow.document.write(`
+                <tr>
+                    ${index === 0 ? `<td rowspan="${products.length}" style="vertical-align: top; font-weight: bold;">${mall}</td>` : ''}
+                    <td>${platform}</td>
+                    <td>${height1}</td>
+                    <td>${width1}</td>
+                    <td>${height2 !== '-' ? height2 : ''}</td>
+                    <td>${width2 !== '-' ? width2 : ''}</td>
+                    <td>${visitors}</td>
+                    ${!withoutPrices ? `<td>${typeof price === 'string' ? price : price.toLocaleString()}</td>` : ''}
+                </tr>
+            `);
+        });
     });
     
     printWindow.document.write(`
-                <tr style="font-weight:bold;">
-                    <td>סהכ</td>
-                    <td>${totalProducts}</td>
-                    ${!withoutPrices ? `<td>${totalCost.toLocaleString()}</td>` : ''}
-                </tr>
+                </tbody>
             </table>
         </body>
         </html>
