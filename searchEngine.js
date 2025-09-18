@@ -70,14 +70,92 @@ function displayAllProductResults(items) {
         const currentQuery = document.getElementById('searchInput').value.trim();
         const searchTerms = currentQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
         
+        // הודעה על סוג החיפוש תעבור לצד ימין
         if (matchType === 'platform') {
-            addMessage(`<strong>🎯 נמצאו ${items.length} תוצאות בפלטפורמה:</strong><br>התוצאות מוצגות לפי התאמה מדויקת בשדה "פלטפורמה".`);
+            addSystemNotification(`<strong>🎯 נמצאו ${items.length} תוצאות בפלטפורמה</strong><br>החיפוש "${currentQuery}" מצא התאמות בשדה "פלטפורמה".`);
         } else {
-            addMessage(`<strong>🔍 נמצאו ${items.length} תוצאות בחיפוש כללי:</strong><br>לא נמצאו התאמות בפלטפורמה, מוצגות תוצאות מכל השדות.`);
+            addSystemNotification(`<strong>🔍 נמצאו ${items.length} תוצאות בחיפוש כללי</strong><br>החיפוש "${currentQuery}" מצא התאמות בכל השדות.`);
         }
         
-        // הצגת תוצאות עם הדגשות
-        items.forEach(item => displayProductResult(item, searchTerms));
+        // נקה את אזור התוצאות
+        const messagesArea = document.getElementById('messagesArea');
+        if (messagesArea) {
+            messagesArea.innerHTML = '';
+        }
+        
+        // הצג רק את התוצאה הראשונה
+        displayProductResult(items[0], searchTerms, 1, items.length);
+        
+        // אם יש יותר מתוצאה אחת, הוסף כפתור "עוד תוצאות"
+        if (items.length > 1) {
+            addMessage(`
+                <div style="text-align: center; padding: 20px; background: rgba(23, 162, 184, 0.1); border-radius: 12px; margin: 20px 0;">
+                    <h4 style="color: #17a2b8; margin-bottom: 15px;">📋 תוצאות נוספות</h4>
+                    <p style="margin-bottom: 15px; color: #666;">נמצאו עוד ${items.length - 1} תוצאות לחיפוש "${currentQuery}"</p>
+                    <button onclick="showAllResults()" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        📄 הצג את כל התוצאות (${items.length})
+                    </button>
+                </div>
+            `);
+        }
+    }
+}
+
+// פונקציה להצגת כל התוצאות
+function showAllResults() {
+    if (!currentSearchResults || currentSearchResults.length === 0) return;
+    
+    const currentQuery = document.getElementById('searchInput').value.trim() || 'החיפוש הקודם';
+    const searchTerms = currentQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    
+    // נקה את אזור התוצאות
+    const messagesArea = document.getElementById('messagesArea');
+    if (messagesArea) {
+        messagesArea.innerHTML = '';
+    }
+    
+    // הצג את כל התוצאות
+    currentSearchResults.forEach((item, index) => {
+        displayProductResult(item, searchTerms, index + 1, currentSearchResults.length);
+    });
+    
+    // הוסף כפתור חזרה לתצוגה הראשונה
+    addMessage(`
+        <div style="text-align: center; padding: 15px; background: rgba(108, 117, 125, 0.1); border-radius: 8px; margin: 20px 0;">
+            <button onclick="showFirstResult()" style="background: linear-gradient(135deg, #6c757d, #495057); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                ⬆️ חזור לתוצאה הראשונה
+            </button>
+        </div>
+    `);
+}
+
+// פונקציה לחזרה לתצוגת התוצאה הראשונה
+function showFirstResult() {
+    if (!currentSearchResults || currentSearchResults.length === 0) return;
+    
+    const currentQuery = document.getElementById('searchInput').value.trim() || 'החיפוש הקודם';
+    const searchTerms = currentQuery.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+    
+    // נקה את אזור התוצאות
+    const messagesArea = document.getElementById('messagesArea');
+    if (messagesArea) {
+        messagesArea.innerHTML = '';
+    }
+    
+    // הצג רק את התוצאה הראשונה
+    displayProductResult(currentSearchResults[0], searchTerms, 1, currentSearchResults.length);
+    
+    // הוסף כפתור "עוד תוצאות" אם יש
+    if (currentSearchResults.length > 1) {
+        addMessage(`
+            <div style="text-align: center; padding: 20px; background: rgba(23, 162, 184, 0.1); border-radius: 12px; margin: 20px 0;">
+                <h4 style="color: #17a2b8; margin-bottom: 15px;">📋 תוצאות נוספות</h4>
+                <p style="margin-bottom: 15px; color: #666;">נמצאו עוד ${currentSearchResults.length - 1} תוצאות</p>
+                <button onclick="showAllResults()" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    📄 הצג את כל התוצאות (${currentSearchResults.length})
+                </button>
+            </div>
+        `);
     }
 }
 
