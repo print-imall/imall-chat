@@ -1,4 +1,4 @@
-// טיפול בתמונות וקישורי שיתוף - עם הדגשות
+// טיפול בתמונות וקישורי שיתוף - רק וואטסאפ
 
 // פונקציה ליצירת URL תמונה
 function generateImageUrl(productCode) {
@@ -15,7 +15,7 @@ function handleImageError(img) {
 
 // פונקציה לשיתוף מוצר בווטסאפ
 function shareProduct(productCode) {
-    const allMsgs = Array.from(elements.messagesArea.querySelectorAll('.product-result'));
+    const allMsgs = Array.from(document.getElementById('messagesArea').querySelectorAll('.product-result'));
     let prodDiv = null;
     
     allMsgs.forEach(div => {
