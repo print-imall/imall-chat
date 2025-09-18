@@ -44,7 +44,7 @@ function shareProduct(productCode) {
     
     const imageUrl = generateImageUrl(productCode);
     productText += '\n📷 *תמונה:* ' + imageUrl;
-    productText += '\n\n—\n📡 נשלח ממערכת איימולון';
+    productText += '\n\n—\n📡 נשלח ממערכת צ\'טמול';
     
     const whatsappUrl = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(productText);
     window.open(whatsappUrl, '_blank');
