@@ -30,11 +30,11 @@ function updateStatus(status, text) {
 
 // פונקציה להוספת הודעה - עדכון לתוצאות חיפוש
 function addMessage(content, type = 'system') {
-    if (type === 'system' || type === 'loading') {
-        // הודעות מערכת יעברו לצד ימין
+    if (type === 'system-notification') {
+        // רק הודעות מערכת ספציפיות יעברו לצד ימין
         addSystemNotification(content);
     } else {
-        // תוצאות חיפוש יוצגו במרכז
+        // כל שאר התוצאות (כולל תוצאות חיפוש) במרכז המסך
         const messagesArea = document.getElementById('messagesArea');
         if (!messagesArea) return;
         
