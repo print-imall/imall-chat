@@ -8,7 +8,12 @@ let currentGanttData = null;
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
-    if (!productsData || !Array.isArray(productsData) || productsData.length === 0) return;
+    console.log('מעדכן רשימת מתחמים לגנט...');
+    
+    if (!productsData || !Array.isArray(productsData) || productsData.length === 0) {
+        console.log('אין נתוני מוצרים');
+        return;
+    }
     
     const allMallsSet = new Set();
     productsData.forEach(p => {
@@ -18,18 +23,37 @@ function updateGanttMallOptions() {
         }
     });
     
-    allMalls = Array.from(allMallsSet).sort();
+    // עדכון המשתנה הגלובלי
+    if (typeof window !== 'undefined') {
+        window.allMalls = Array.from(allMallsSet).sort();
+        if (!window.selectedMalls) {
+            window.selectedMalls = new Set();
+        }
+    } else {
+        allMalls = Array.from(allMallsSet).sort();
+        if (typeof selectedMalls === 'undefined') {
+            selectedMalls = new Set();
+        }
+    }
+    
+    console.log('מתחמים שנמצאו:', allMalls);
     updateMallsDropdown();
 }
 
 // פונקציה לעדכון הרשימה הנפתחת
 function updateMallsDropdown() {
     const dropdown = document.getElementById('mallsDropdown');
-    if (!dropdown) return;
+    if (!dropdown) {
+        console.log('לא נמצא אלמנט mallsDropdown');
+        return;
+    }
     
     dropdown.innerHTML = '';
     
-    if (allMalls.length === 0) {
+    const mallsToUse = typeof window !== 'undefined' && window.allMalls ? window.allMalls : (typeof allMalls !== 'undefined' ? allMalls : []);
+    const selectedMallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : (typeof selectedMalls !== 'undefined' ? selectedMalls : new Set());
+    
+    if (mallsToUse.length === 0) {
         dropdown.innerHTML = '<div class="multi-select-option">אין מתחמים זמינים</div>';
         return;
     }
@@ -38,17 +62,20 @@ function updateMallsDropdown() {
     const selectAllOption = document.createElement('div');
     selectAllOption.className = 'multi-select-option';
     selectAllOption.innerHTML = `
-        <input type="checkbox" id="selectAll" ${selectedMalls.size === allMalls.length ? 'checked' : ''}>
+        <input type="checkbox" id="selectAll" ${selectedMallsToUse.size === mallsToUse.length ? 'checked' : ''}>
         <label for="selectAll"><strong>בחר הכל</strong></label>
     `;
     selectAllOption.addEventListener('click', function(e) {
         e.stopPropagation();
         const checkbox = this.querySelector('input');
+        const mallsSet = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : selectedMalls;
+        const mallsArray = typeof window !== 'undefined' && window.allMalls ? window.allMalls : allMalls;
+        
         if (checkbox.checked) {
-            selectedMalls.clear();
+            mallsSet.clear();
         } else {
-            selectedMalls.clear();
-            allMalls.forEach(mall => selectedMalls.add(mall));
+            mallsSet.clear();
+            mallsArray.forEach(mall => mallsSet.add(mall));
         }
         updateMallsDisplay();
         updateMallsDropdown();
@@ -62,20 +89,22 @@ function updateMallsDropdown() {
     dropdown.appendChild(separator);
     
     // אפשרויות המתחמים
-    allMalls.forEach(mall => {
+    mallsToUse.forEach(mall => {
         const option = document.createElement('div');
         option.className = 'multi-select-option';
         option.innerHTML = `
-            <input type="checkbox" id="mall-${mall}" ${selectedMalls.has(mall) ? 'checked' : ''}>
+            <input type="checkbox" id="mall-${mall}" ${selectedMallsToUse.has(mall) ? 'checked' : ''}>
             <label for="mall-${mall}">${mall}</label>
         `;
         option.addEventListener('click', function(e) {
             e.stopPropagation();
             const checkbox = this.querySelector('input');
+            const mallsSet = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : selectedMalls;
+            
             if (checkbox.checked) {
-                selectedMalls.delete(mall);
+                mallsSet.delete(mall);
             } else {
-                selectedMalls.add(mall);
+                mallsSet.add(mall);
             }
             updateMallsDisplay();
             updateMallsDropdown();
@@ -87,13 +116,18 @@ function updateMallsDropdown() {
 // פונקציה לעדכון תצוגת המתחמים הנבחרים
 function updateMallsDisplay() {
     const selectedMallsDiv = document.getElementById('selectedMalls');
-    if (!selectedMallsDiv) return;
+    if (!selectedMallsDiv) {
+        console.log('לא נמצא אלמנט selectedMalls');
+        return;
+    }
     
-    if (selectedMalls.size === 0) {
+    const selectedMallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : (typeof selectedMalls !== 'undefined' ? selectedMalls : new Set());
+    
+    if (selectedMallsToUse.size === 0) {
         selectedMallsDiv.innerHTML = '<span style="color:#999;">בחר מתחמים...</span>';
     } else {
         selectedMallsDiv.innerHTML = '';
-        Array.from(selectedMalls).forEach(mall => {
+        Array.from(selectedMallsToUse).forEach(mall => {
             const item = document.createElement('div');
             item.className = 'selected-item';
             item.innerHTML = `
@@ -107,7 +141,8 @@ function updateMallsDisplay() {
 
 // פונקציה להסרת מתחם
 function removeMall(mall) {
-    selectedMalls.delete(mall);
+    const mallsSet = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : selectedMalls;
+    mallsSet.delete(mall);
     updateMallsDisplay();
     updateMallsDropdown();
 }
@@ -115,13 +150,17 @@ function removeMall(mall) {
 // פונקציה לחישוב תקציב גנט
 function calculateGanttBudget() {
     console.log('מתחיל חישוב גנט...');
-    console.log('מתחמים נבחרים:', selectedMalls);
+    
+    // וודא שאנחנו משתמשים במשתנים הנכונים
+    const selectedMallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : (typeof selectedMalls !== 'undefined' ? selectedMalls : new Set());
+    
+    console.log('מתחמים נבחרים:', Array.from(selectedMallsToUse));
     console.log('נתוני מוצרים:', productsData ? productsData.length : 'לא זמינים');
     
     const type = document.getElementById('ganttType').value;
     const budget = Number(document.getElementById('ganttBudget').value);
     
-    if (selectedMalls.size === 0) {
+    if (selectedMallsToUse.size === 0) {
         document.getElementById('ganttResults').innerHTML = 
             '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ אנא בחר לפחות מתחם אחד</div>';
         return;
@@ -144,7 +183,7 @@ function calculateGanttBudget() {
         if (!mall) return;
         
         const mallTrimmed = mall.trim();
-        if (!selectedMalls.has(mallTrimmed)) return;
+        if (!selectedMallsToUse.has(mallTrimmed)) return;
         
         console.log(`מוצר ${index}: מתחם="${mallTrimmed}", פלטפורמה="${p['פלטפורמה']}", מחיר="${p['מחיר מכירה']}"`);
         
@@ -184,7 +223,7 @@ function calculateGanttBudget() {
     console.log('תוצאות חישוב:', mallSums);
     console.log('מספרי מוצרים:', mallCounts);
     
-    const selectedMallsList = Array.from(selectedMalls);
+    const selectedMallsList = Array.from(selectedMallsToUse);
     
     // בדיקה שיש נתונים
     const totalSum = Object.values(mallSums).reduce((a, b) => a + b, 0);
@@ -225,7 +264,7 @@ function calculateGanttBudget() {
         mallCounts,
         type,
         budget,
-        selectedMalls: Array.from(selectedMalls),
+        selectedMalls: Array.from(selectedMallsToUse),
         generatedAt: new Date().toISOString()
     };
     
