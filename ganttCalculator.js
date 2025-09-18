@@ -158,15 +158,21 @@ function calculateGanttBudget() {
         const mallTrimmed = mall.trim();
         if (!ganttSelectedMalls.has(mallTrimmed)) return;
         
-        // סינון לפי סוג קמפיין
-        const platformStr = String(p['פלטפורמה'] || '').toLowerCase();
+        // סינון לפי סוג קמפיין - חיפוש בעמודת "קמפיין"
+        const campaignStr = String(p['קמפיין'] || '').toLowerCase();
+        
+        console.log(`מוצר ${mall}: קמפיין="${campaignStr}", סוג="${type}"`);
         
         if (type === 'פרינט') {
-            if (!platformStr.includes('פרינט') && !platformStr.includes('print')) {
+            if (!campaignStr.includes('פרינט') && !campaignStr.includes('print') && 
+                !campaignStr.includes('printed') && !campaignStr.includes('הדפסה')) {
+                console.log('מדלג על פרינט - לא מתאים');
                 return;
             }
         } else if (type === 'דיגיטלי') {
-            if (!platformStr.includes('דיגיטלי') && !platformStr.includes('digital')) {
+            if (!campaignStr.includes('דיגיטלי') && !campaignStr.includes('digital') && 
+                !campaignStr.includes('אונליין') && !campaignStr.includes('online')) {
+                console.log('מדלג על דיגיטלי - לא מתאים');
                 return;
             }
         }
@@ -242,8 +248,8 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
     finalMalls.forEach(mall => {
         mallPlatforms[mall] = new Set();
         productsData.forEach(p => {
-            if (p['מתחם'] && p['מתחם'].trim() === mall && p['פלטפורמה']) {
-                mallPlatforms[mall].add(p['פלטפורמה']);
+            if (p['מתחם'] && p['מתחם'].trim() === mall && p['קמפיין']) {
+                mallPlatforms[mall].add(p['קמפיין']);
             }
         });
     });
