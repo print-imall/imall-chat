@@ -480,7 +480,7 @@ function exportGanttToPDF(withoutPrices = false) {
     printWindow.document.write(`
         <html dir="rtl">
         <head>
-            <title>תוכנית גנט תקציב - צ׳טמול</title>
+            <title>תוכנית גנט תקציב - צ'טמול</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; }
                 .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #007bff; padding-bottom: 15px; }
@@ -500,7 +500,7 @@ function exportGanttToPDF(withoutPrices = false) {
         </head>
         <body>
             <div class="header">
-                <h1>צ׳טמול - תוכנית גנט תקציב</h1>
+                <h1>צ'טמול - תוכנית גנט תקציב</h1>
                 <p>תאריך: ${new Date().toLocaleDateString('he-IL')} | ${withoutPrices ? 'ללא מחירים' : 'עם מחירים'}</p>
             </div>
             
