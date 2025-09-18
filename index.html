@@ -26,8 +26,13 @@
     <div class="main-container">
         <div class="sidebar">
             <div class="stats-card" id="statsCard" style="display: none;">
-                <div class="stats-number" id="productCount">0</div>
-                <div class="stats-label">מוצרים במאגר</div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div>
+                        <div class="stats-number" id="productCount">0</div>
+                        <div class="stats-label">מוצרים במאגר</div>
+                    </div>
+                    <button onclick="showHelp()" style="background: #17a2b8; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 5px;">❓ עזרה</button>
+                </div>
             </div>
             <div class="quick-info">
                 <h3>💡 מידע מהיר</h3>
@@ -151,6 +156,18 @@
             const helpMessage = `
                 <div style="background: rgba(23, 162, 184, 0.1); padding: 20px; border-radius: 12px; border-right: 4px solid #17a2b8;">
                     <h3 style="color: #17a2b8; margin-top: 0;">🤖 איך המערכת עובדת?</h3>
+                    
+                    <div style="background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #28a745;">
+                        <h4 style="color: #28a745; margin-top: 0;">📊 סטטוס המערכת:</h4>
+                        <p style="margin-bottom: 8px;"><strong>✅ המערכת מוכנה לשימוש!</strong></p>
+                        <p style="margin-bottom: 8px;">נטענו בהצלחה <strong>${document.getElementById('productCount').textContent} מוצרים</strong> ממאגר</p>
+                        <p style="margin-bottom: 0;"><strong>🎉 אתה יכול עכשיו להתחיל לחפש מוצרים!</strong></p>
+                    </div>
+                    
+                    <div style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-right: 4px solid #ffc107;">
+                        <h4 style="color: #856404; margin-top: 0;">📝 שדות זמינים בקובץ:</h4>
+                        <code style="font-size: 13px; background: rgba(0,0,0,0.1); padding: 8px; border-radius: 4px; display: block; word-break: break-all;">מתחם, מקט, פלטפורמה, מחיר מכירה, מבקרים, גובה, רוחב, גובה2, רוחב2, קמפיין</code>
+                    </div>
                     
                     <h4 style="color: #333; margin-bottom: 10px;">📋 שלבי החיפוש:</h4>
                     <p>• <strong>שלב 1:</strong> המערכת מחפשת תחילה בשדה "פלטפורמה"</p>
