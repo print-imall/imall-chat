@@ -527,6 +527,7 @@ function exportGanttToPDF(withoutPrices = false) {
                     <tr>
                         <th>מתחם</th>
                         <th>מספר מוצרים</th>
+                        <th>מידות (רוחב×גובה)</th>
                         ${!withoutPrices ? '<th>אחוז מהתקציב</th><th>עלות (₪)</th>' : ''}
                     </tr>
                 </thead>
@@ -538,10 +539,30 @@ function exportGanttToPDF(withoutPrices = false) {
         const count = mallCounts[mall] || 0;
         const percentage = totalCost > 0 ? ((cost / totalCost) * 100).toFixed(1) : 0;
         
+        // מציאת מוצר לדוגמה מהמתחם הזה למידות
+        const sampleProduct = productsData.find(p => p['מתחם'] && p['מתחם'].trim() === mall);
+        let dimensionsText = '-';
+        if (sampleProduct) {
+            const height1 = sampleProduct['גובה'] || '';
+            const width1 = sampleProduct['רוחב'] || '';
+            const height2 = sampleProduct['גובה2'] || '';
+            const width2 = sampleProduct['רוחב2'] || '';
+            
+            let dims = [];
+            if (height1 && width1) {
+                dims.push(`${width1}×${height1}`);
+            }
+            if (height2 && width2) {
+                dims.push(`${width2}×${height2}`);
+            }
+            dimensionsText = dims.length > 0 ? dims.join(', ') : '-';
+        }
+        
         printWindow.document.write(`
             <tr>
                 <td>${mall}</td>
                 <td>${count}</td>
+                <td>${dimensionsText}</td>
                 ${!withoutPrices ? `<td>${percentage}%</td><td>${cost.toLocaleString()}</td>` : ''}
             </tr>
         `);
@@ -551,6 +572,7 @@ function exportGanttToPDF(withoutPrices = false) {
                     <tr class="total-row">
                         <td>סה"כ</td>
                         <td>${totalProducts}</td>
+                        <td>-</td>
                         ${!withoutPrices ? `<td>100%</td><td>${totalCost.toLocaleString()}</td>` : ''}
                     </tr>
                 </tbody>
