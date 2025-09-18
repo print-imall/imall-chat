@@ -1,5 +1,14 @@
 // קובץ ראשי שמחבר את כל הרכיבים - ללא פילטרים
 
+// הגדרת אלמנטים
+let elements = {
+    messagesArea: null,
+    searchInput: null,
+    searchBtn: null,
+    statsCard: null,
+    productCount: null
+};
+
 // טעינת נתוני Excel מ-GitHub
 async function loadExcelData() {
     updateStatus('loading', 'מתחיל טעינה...');
@@ -28,14 +37,14 @@ async function loadExcelData() {
         elements.statsCard.style.display = 'block';
         
         updateStatus('ready', `מוכן! ${productsData.length} מוצרים`);
-        addMessage(`<strong>📊 המערכת מוכנה לשימוש!</strong><br>נטענו בהצלחה <strong>${productsData.length} מוצרים</strong> ממאגר.<br><br><strong>🎉 אתה יכול עכשיו להתחיל לחפש מוצרים!</strong>`);
+        addSystemNotification(`<strong>📊 המערכת מוכנה לשימוש!</strong><br>נטענו בהצלחה <strong>${productsData.length} מוצרים</strong> ממאגר.<br><br><strong>🎉 אתה יכול עכשיו להתחיל לחפש מוצרים!</strong>`);
         
         elements.searchInput.disabled = false;
         elements.searchBtn.disabled = false;
         
         if (productsData.length > 0) {
             const sampleFields = Object.keys(productsData[0]).join(', ');
-            addMessage(`<strong>📝 שדות זמינים בקובץ:</strong><br><code style="font-size: 12px; background: rgba(0,0,0,0.1); padding: 5px; border-radius: 3px; word-break: break-all;">${sampleFields}</code>`);
+            addSystemNotification(`<strong>📝 שדות זמינים בקובץ:</strong><br><code style="font-size: 11px; background: rgba(0,0,0,0.1); padding: 4px; border-radius: 3px; word-break: break-all;">${sampleFields}</code>`);
         }
         
         // קריאה לפונקציות אחרות רק אם הן קיימות
@@ -59,7 +68,7 @@ async function loadExcelData() {
             errorHelp = '<strong>🔧 שגיאה כללית:</strong><br>• נסה לרענן את הדף<br>• בדוק חיבור לאינטרנט';
         }
         
-        addMessage(`<div class="error-message"><strong>❌ שגיאה בטעינת הנתונים:</strong><br>${error.message}<br><br>${errorHelp}</div>`);
+        addSystemNotification(`<div class="error-message"><strong>❌ שגיאה בטעינת הנתונים:</strong><br>${error.message}<br><br>${errorHelp}</div>`);
     }
 }
 
