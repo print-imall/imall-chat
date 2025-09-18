@@ -158,26 +158,20 @@ function calculateGanttBudget() {
         const mallTrimmed = mall.trim();
         if (!ganttSelectedMalls.has(mallTrimmed)) return;
         
-        // סינון לפי סוג קמפיין - בדיקה מדויקת יותר
+        // סינון לפי סוג קמפיין - תואם לערכים המדויקים בנתונים
         const campaignStr = String(p['קמפיין'] || '').toLowerCase().trim();
         
         console.log(`מוצר ${mall}: קמפיין="${campaignStr}", בודק סוג="${type}"`);
         
         if (type === 'פרינט') {
-            // רק אם זה פרינט - דחה אם זה דיגיטלי או לא פרינט
-            if (campaignStr.includes('דיגיטלי') || campaignStr.includes('digital') || 
-                campaignStr.includes('אונליין') || campaignStr.includes('online') ||
-                (!campaignStr.includes('פרינט') && !campaignStr.includes('print') && 
-                 !campaignStr.includes('הדפסה') && campaignStr.length > 0)) {
+            // כלול רק מוצרי פרינט
+            if (!campaignStr.includes('פרינט')) {
                 console.log('מדלג - לא פרינט');
                 return;
             }
         } else if (type === 'דיגיטלי') {
-            // רק אם זה דיגיטלי - דחה אם זה פרינט או לא דיגיטלי
-            if (campaignStr.includes('פרינט') || campaignStr.includes('print') || 
-                campaignStr.includes('הדפסה') ||
-                (!campaignStr.includes('דיגיטלי') && !campaignStr.includes('digital') && 
-                 !campaignStr.includes('אונליין') && !campaignStr.includes('online') && campaignStr.length > 0)) {
+            // כלול רק מוצרים דיגיטליים - שים לב לכתיב "דיגטלי" ללא 'י'
+            if (!campaignStr.includes('דיגטלי')) {
                 console.log('מדלג - לא דיגיטלי');
                 return;
             }
