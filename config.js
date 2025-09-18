@@ -15,15 +15,6 @@ let allMalls = [];
 let savedSearches = JSON.parse(localStorage.getItem('companySearches') || '[]');
 let currentSearchResults = [];
 
-// אלמנטים בעמוד
-const elements = {
-    messagesArea: null,
-    searchInput: null,
-    searchBtn: null,
-    statsCard: null,
-    productCount: null
-};
-
 // פונקציה לעדכון סטטוס
 function updateStatus(status, text) {
     const statusIndicator = document.getElementById('statusIndicator');
@@ -37,28 +28,43 @@ function updateStatus(status, text) {
     statusIndicator.innerHTML = '<span>' + icon + '</span><span>' + text + '</span>';
 }
 
-// פונקציה להוספת הודעה
+// פונקציה להוספת הודעה - עדכון לתוצאות חיפוש
 function addMessage(content, type = 'system') {
-    if (!elements.messagesArea) return;
-    
-    const message = document.createElement('div');
-    message.className = 'message ' + type;
-    message.innerHTML = content;
-    elements.messagesArea.appendChild(message);
-    elements.messagesArea.scrollTop = elements.messagesArea.scrollHeight;
+    if (type === 'system' || type === 'loading') {
+        // הודעות מערכת יעברו לצד ימין
+        addSystemNotification(content);
+    } else {
+        // תוצאות חיפוש יוצגו במרכז
+        const messagesArea = document.getElementById('messagesArea');
+        if (!messagesArea) return;
+        
+        const message = document.createElement('div');
+        message.className = 'message ' + type;
+        message.innerHTML = content;
+        messagesArea.appendChild(message);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
 }
 
-// פונקציה לניקוי היסטוריה
+// פונקציה חדשה להוספת הודעות מערכת לצד ימין
+function addSystemNotification(content) {
+    const systemMessagesList = document.getElementById('systemMessagesList');
+    if (!systemMessagesList) return;
+    
+    const notification = document.createElement('div');
+    notification.style.cssText = 'margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 6px; border-left: 3px solid #17a2b8;';
+    notification.innerHTML = `<small style="opacity: 0.8;">${new Date().toLocaleTimeString('he-IL', {hour: '2-digit', minute:'2-digit'})}</small><br>${content}`;
+    
+    systemMessagesList.appendChild(notification);
+    systemMessagesList.scrollTop = systemMessagesList.scrollHeight;
+}
+
+// פונקציה לניקוי היסטוריה - עדכון
 function clearHistory() {
-    if (!elements.messagesArea) return;
-    
-    const systemMessages = elements.messagesArea.querySelectorAll('.message.system');
-    const firstSystemMessage = systemMessages[0];
-    elements.messagesArea.innerHTML = '';
-    
-    if (firstSystemMessage) { 
-        elements.messagesArea.appendChild(firstSystemMessage);
+    const messagesArea = document.getElementById('messagesArea');
+    if (messagesArea) {
+        messagesArea.innerHTML = '';
     }
     
-    addMessage('<strong>🗑️ ההיסטוריה נוקתה!</strong><br>כל חיפושי העבר נמחקו.');
+    addSystemNotification('<strong>🗑️ ההיסטוריה נוקתה!</strong><br>כל חיפושי העבר נמחקו.');
 }
