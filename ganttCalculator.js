@@ -158,21 +158,21 @@ function calculateGanttBudget() {
         const mallTrimmed = mall.trim();
         if (!ganttSelectedMalls.has(mallTrimmed)) return;
         
-        // סינון לפי סוג קמפיין - תואם לערכים המדויקים בנתונים
-        const campaignStr = String(p['קמפיין'] || '').toLowerCase().trim();
+        // סינון לפי סוג קמפיין - בדיקה מדויקת
+        const campaignStr = String(p['קמפיין'] || '').trim();
         
         console.log(`מוצר ${mall}: קמפיין="${campaignStr}", בודק סוג="${type}"`);
         
         if (type === 'פרינט') {
-            // כלול רק מוצרי פרינט
-            if (!campaignStr.includes('פרינט')) {
-                console.log('מדלג - לא פרינט');
+            // כלול רק אם הערך הוא בדיוק "פרינט"
+            if (campaignStr !== 'פרינט') {
+                console.log('מדלג - לא פרינט מדויק');
                 return;
             }
         } else if (type === 'דיגיטלי') {
-            // כלול רק מוצרים דיגיטליים - שים לב לכתיב "דיגטלי" ללא 'י'
-            if (!campaignStr.includes('דיגטלי')) {
-                console.log('מדלג - לא דיגיטלי');
+            // כלול רק אם הערך הוא בדיוק "דיגטלי"
+            if (campaignStr !== 'דיגטלי') {
+                console.log('מדלג - לא דיגטלי מדויק');
                 return;
             }
         }
@@ -200,13 +200,15 @@ function calculateGanttBudget() {
         return;
     }
     
-    // סינון לפי תקציב אם הוגדר
-    let finalMalls = selectedMallsList;
+    // סינון לפי תקציב אם הוגדר - רק מהמתחמים שיש להם נתונים
+    const mallsWithData = Object.keys(mallSums).filter(mall => mallSums[mall] > 0);
+    
+    let finalMalls = mallsWithData;
     if (budget && !isNaN(budget) && budget > 0) {
         let currentSum = 0;
         finalMalls = [];
         
-        const sortedMalls = selectedMallsList.sort((a, b) => (mallSums[a] || 0) - (mallSums[b] || 0));
+        const sortedMalls = mallsWithData.sort((a, b) => (mallSums[a] || 0) - (mallSums[b] || 0));
         
         for (let mall of sortedMalls) {
             const mallCost = mallSums[mall] || 0;
