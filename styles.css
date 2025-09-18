@@ -67,6 +67,58 @@
         flex-direction: column !important;
         gap: 15px !important;
     }
+     body {
+        overflow-x: hidden;
+    }
+    
+    .main-container {
+        width: 100vw;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+    
+    .chat-area {
+        width: 100%;
+        max-width: 100vw;
+        padding: 0 5px;
+        box-sizing: border-box;
+    }
+    
+    .product-result {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    .product-table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .product-table {
+        min-width: 100%;
+        font-size: 13px;
+    }
+    
+    .product-table th,
+    .product-table td {
+        padding: 6px 4px;
+        word-wrap: break-word;
+        max-width: 120px;
+    }
+    
+    /* תיקון לשורת החיפוש */
+    .input-area {
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
+        padding: 8px 5px !important;
+    }
+
 }
 
 /* התאמה למובייל */
