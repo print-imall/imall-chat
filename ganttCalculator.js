@@ -1,6 +1,4 @@
-<thead>
-                    <tr>
-                        <th>// מחשבון גנט - עם תרשימים ויצוא PDF
+// מחשבון גנט - עם תרשימים ויצוא PDF
 
 // משתנים לניהול תוכניות גנט
 let savedGanttPlans = JSON.parse(localStorage.getItem('ganttPlans') || '[]');
@@ -151,7 +149,7 @@ function removeMall(mall) {
 function calculateGanttBudget() {
     console.log('מתחיל חישוב גנט...');
     
-    // וודא שאנחנו משתמשים במשתנים הנכונים
+    // ווידוא שאנחנו משתמשים במשתנים הנכונים
     const selectedMallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : (typeof selectedMalls !== 'undefined' ? selectedMalls : new Set());
     
     console.log('מתחמים נבחרים:', Array.from(selectedMallsToUse));
@@ -162,13 +160,13 @@ function calculateGanttBudget() {
     
     if (selectedMallsToUse.size === 0) {
         document.getElementById('ganttResults').innerHTML = 
-            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ אנא בחר לפחות מתחם אחד</div>';
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">אנא בחר לפחות מתחם אחד</div>';
         return;
     }
     
     if (!productsData || productsData.length === 0) {
         document.getElementById('ganttResults').innerHTML = 
-            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ אין נתוני מוצרים זמינים</div>';
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">אין נתוני מוצרים זמינים</div>';
         return;
     }
     
@@ -229,7 +227,7 @@ function calculateGanttBudget() {
     const totalSum = Object.values(mallSums).reduce((a, b) => a + b, 0);
     if (totalSum === 0) {
         document.getElementById('ganttResults').innerHTML = 
-            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ לא נמצאו מוצרים עם מחירים תקפים למתחמים הנבחרים</div>';
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">לא נמצאו מוצרים עם מחירים תקפים למתחמים הנבחרים</div>';
         return;
     }
     
@@ -253,7 +251,7 @@ function calculateGanttBudget() {
     
     if (finalMalls.length === 0) {
         document.getElementById('ganttResults').innerHTML = 
-            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ לא נמצאו מתחמים תואמים לתקציב</div>';
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">לא נמצאו מתחמים תואמים לתקציב</div>';
         return;
     }
     
@@ -294,12 +292,12 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
     let html = `
         <div style="background:white; padding:20px; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,0.1);" id="ganttReportContent">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h4 style="margin:0; color:#007bff;">📊 תוצאות חישוב תקציב גנט</h4>
+                <h4 style="margin:0; color:#007bff;">תוצאות חישוב תקציב גנט</h4>
                 <div style="display: flex; gap: 10px;">
-                    <button onclick="editGanttResults()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">✏️ ערוך תוצאות</button>
-                    <button onclick="saveGanttPlan()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">💾 שמור תוכנית</button>
-                    <button onclick="exportGanttToPDF(false)" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">📄 PDF עם מחירים</button>
-                    <button onclick="exportGanttToPDF(true)" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">📄 PDF ללא מחירים</button>
+                    <button onclick="editGanttResults()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">ערוך תוצאות</button>
+                    <button onclick="saveGanttPlan()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">שמור תוכנית</button>
+                    <button onclick="exportGanttToPDF(false)" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">PDF עם מחירים</button>
+                    <button onclick="exportGanttToPDF(true)" style="background: #6c757d; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px;">PDF ללא מחירים</button>
                 </div>
             </div>
             
@@ -318,9 +316,8 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                 </div>
             </div>
             
-            <!-- תרשים עוגה -->
             <div style="margin-bottom: 30px;">
-                <h5 style="color:#333; text-align:center; margin-bottom:15px;">📈 חלוקת תקציב לפי מתחמים</h5>
+                <h5 style="color:#333; text-align:center; margin-bottom:15px;">חלוקת תקציב לפי מתחמים</h5>
                 <canvas id="ganttPieChart" style="max-height:300px; margin: 0 auto; display: block;"></canvas>
             </div>
             
@@ -331,7 +328,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                         <th style="padding:12px; text-align:center;">מוצרים</th>
                         <th style="padding:12px; text-align:center;">פלטפורמות</th>
                         <th style="padding:12px; text-align:center;">אחוז מהתקציב</th>
-                        <th style="padding:12px; text-align:center;">עלות (₪)</th>
+                        <th style="padding:12px; text-align:center;">עלות</th>
                         <th style="padding:12px; text-align:center; border-radius:0 8px 0 0;">פעולות</th>
                     </tr>
                 </thead>
@@ -359,8 +356,8 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                 <td style="padding:10px; text-align:center;" id="percentage-${index}">${percentage}%</td>
                 <td style="padding:10px; text-align:center; font-weight:600; color:#007bff;">${cost.toLocaleString()}</td>
                 <td style="padding:10px; text-align:center;">
-                    <button onclick="editMallPlatforms('${mall}', ${index})" style="background: #17a2b8; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 2px;">✏️ ערוך</button>
-                    <button onclick="removeMallFromGantt('${mall}')" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ הסר</button>
+                    <button onclick="editMallPlatforms('${mall}', ${index})" style="background: #17a2b8; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 2px;">ערוך</button>
+                    <button onclick="removeMallFromGantt('${mall}')" style="background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">הסר</button>
                 </td>
             </tr>
         `;
@@ -382,7 +379,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
                 </tbody>
                 <tfoot>
                     <tr style="background:#28a745; color:white; font-weight:bold;">
-                        <td style="padding:12px;">סה"כ</td>
+                        <td style="padding:12px;">סהכ</td>
                         <td style="text-align:center; padding:12px;">${totalProducts}</td>
                         <td style="text-align:center; padding:12px;">-</td>
                         <td style="text-align:center; padding:12px;">100%</td>
@@ -393,8 +390,8 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
             </table>
     `;
     
-    // הוספת ברף גנט חזותי
-    html += '<div style="margin-top:20px;"><h5 style="color:#333; margin-bottom:15px;">📊 תצוגת גנט חזותית:</h5>';
+    // הוספת גרף גנט חזותי
+    html += '<div style="margin-top:20px;"><h5 style="color:#333; margin-bottom:15px;">תצוגת גנט חזותית:</h5>';
     
     sortedMalls.forEach(mall => {
         const cost = mallSums[mall] || 0;
@@ -403,7 +400,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
         html += `
             <div class="gantt-bar" data-mall="${mall}">
                 <div class="gantt-bar-inner" style="width:${percentage}%; font-size:13px;">
-                    ${cost > 0 ? cost.toLocaleString() + ' ₪' : '-'}
+                    ${cost > 0 ? cost.toLocaleString() : '-'}
                 </div>
                 <span class="gantt-bar-label">${mall}</span>
             </div>
@@ -419,19 +416,19 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
         
         html += `
             <div style="margin-top:20px; padding:15px; background:${remaining >= 0 ? '#d4edda' : '#f8d7da'}; border-radius:8px;">
-                <h5 style="margin:0 0 10px 0; color:${remaining >= 0 ? '#155724' : '#721c24'};">💰 סטטוס תקציב</h5>
+                <h5 style="margin:0 0 10px 0; color:${remaining >= 0 ? '#155724' : '#721c24'};">סטטוס תקציב</h5>
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                     <span>תקציב מקסימלי:</span>
-                    <span><strong>${budget.toLocaleString()} ₪</strong></span>
+                    <span><strong>${budget.toLocaleString()}</strong></span>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
                     <span>בשימוש:</span>
-                    <span><strong>${totalCost.toLocaleString()} ₪ (${usedPercentage}%)</strong></span>
+                    <span><strong>${totalCost.toLocaleString()} (${usedPercentage}%)</strong></span>
                 </div>
                 <div style="display:flex; justify-content:space-between;">
                     <span>${remaining >= 0 ? 'נותר:' : 'חריגה:'}</span>
                     <span style="font-weight:bold; color:${remaining >= 0 ? '#155724' : '#721c24'};">
-                        ${Math.abs(remaining).toLocaleString()} ₪
+                        ${Math.abs(remaining).toLocaleString()}
                     </span>
                 </div>
             </div>
@@ -455,6 +452,12 @@ function createGanttPieChart(malls, mallSums) {
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
         '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
     ];
+    
+    // בדיקה אם Chart.js זמין
+    if (typeof Chart === 'undefined') {
+        console.log('Chart.js לא זמין');
+        return;
+    }
     
     new Chart(ctx, {
         type: 'doughnut',
@@ -483,7 +486,7 @@ function createGanttPieChart(malls, mallSums) {
                             const value = context.parsed;
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = ((value / total) * 100).toFixed(1);
-                            return `${context.label}: ${value.toLocaleString()} ₪ (${percentage}%)`;
+                            return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
                         }
                     }
                 }
@@ -497,7 +500,8 @@ function removeMallFromGantt(mallToRemove) {
     if (!currentGanttData) return;
     
     // הסרת המתחם מהנתונים
-    selectedMalls.delete(mallToRemove);
+    const mallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : selectedMalls;
+    mallsToUse.delete(mallToRemove);
     updateMallsDisplay();
     
     // חישוב מחדש
@@ -522,12 +526,12 @@ function saveGanttPlan() {
     };
     
     savedGanttPlans.unshift(planToSave);
-    if (savedGanttPlans.length > 10) savedGanttPlans.pop(); // שמירה של 10 תוכניות אחרונות
+    if (savedGanttPlans.length > 10) savedGanttPlans.pop();
     
     localStorage.setItem('ganttPlans', JSON.stringify(savedGanttPlans));
     
     if (typeof addMessage === 'function') {
-        addMessage(`<strong>💾 תוכנית הגנט נשמרה!</strong><br>התוכנית "${planName}" נשמרה בהצלחה.`);
+        addMessage(`<strong>תוכנית הגנט נשמרה!</strong><br>התוכנית "${planName}" נשמרה בהצלחה.`);
     }
 }
 
@@ -546,7 +550,7 @@ function exportGanttToPDF(withoutPrices = false) {
     printWindow.document.write(`
         <html dir="rtl">
         <head>
-            <title>תוכנית גנט תקציב - צ'טמול</title>
+            <title>תוכנית גנט תקציב - צטמול</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.4; }
                 .header { text-align: center; margin-bottom: 30px; border-bottom: 3px solid #007bff; padding-bottom: 15px; }
@@ -566,7 +570,7 @@ function exportGanttToPDF(withoutPrices = false) {
         </head>
         <body>
             <div class="header">
-                <h1>צ'טמול - תוכנית גנט תקציב</h1>
+                <h1>צטמול - תוכנית גנט תקציב</h1>
                 <p>תאריך: ${new Date().toLocaleDateString('he-IL')} | ${withoutPrices ? 'ללא מחירים' : 'עם מחירים'}</p>
             </div>
             
@@ -574,9 +578,9 @@ function exportGanttToPDF(withoutPrices = false) {
                 <h3>סיכום התוכנית</h3>
                 <div class="summary-item"><span>סוג קמפיין:</span><span>${type === 'all' ? 'משולב (הכל)' : type}</span></div>
                 <div class="summary-item"><span>מספר מתחמים:</span><span>${finalMalls.length}</span></div>
-                <div class="summary-item"><span>סה"כ מוצרים:</span><span>${totalProducts}</span></div>
-                ${!withoutPrices ? `<div class="summary-item"><span>סה"כ תקציב:</span><span>${totalCost.toLocaleString()} ₪</span></div>` : ''}
-                ${budget && !withoutPrices ? `<div class="summary-item"><span>תקציב מקסימלי:</span><span>${budget.toLocaleString()} ₪</span></div>` : ''}
+                <div class="summary-item"><span>סהכ מוצרים:</span><span>${totalProducts}</span></div>
+                ${!withoutPrices ? `<div class="summary-item"><span>סהכ תקציב:</span><span>${totalCost.toLocaleString()}</span></div>` : ''}
+                ${budget && !withoutPrices ? `<div class="summary-item"><span>תקציב מקסימלי:</span><span>${budget.toLocaleString()}</span></div>` : ''}
             </div>
             
             <h3>פירוט לפי מתחמים</h3>
@@ -587,7 +591,7 @@ function exportGanttToPDF(withoutPrices = false) {
                         <th>מספר מוצרים</th>
                         <th>פלטפורמות</th>
                         <th>מידות (רוחב×גובה)</th>
-                        ${!withoutPrices ? '<th>אחוז מהתקציב</th><th>עלות (₪)</th>' : ''}
+                        ${!withoutPrices ? '<th>אחוז מהתקציב</th><th>עלות</th>' : ''}
                     </tr>
                 </thead>
                 <tbody>
@@ -607,7 +611,7 @@ function exportGanttToPDF(withoutPrices = false) {
         });
         const platformsText = Array.from(platformsSet).join(', ') || 'לא זמין';
         
-        // מציאת מוצר לדוגמה מהמתחם הזה למידות
+        // מציאת מוצר להדוגמה מהמתחם הזה למידות
         const sampleProduct = productsData.find(p => p['מתחם'] && p['מתחם'].trim() === mall);
         let dimensionsText = '-';
         if (sampleProduct) {
@@ -639,7 +643,7 @@ function exportGanttToPDF(withoutPrices = false) {
     
     printWindow.document.write(`
                     <tr class="total-row">
-                        <td>סה"כ</td>
+                        <td>סהכ</td>
                         <td>${totalProducts}</td>
                         <td>-</td>
                         <td>-</td>
@@ -661,7 +665,7 @@ function exportGanttToPDF(withoutPrices = false) {
             <div class="gantt-bar">
                 <div class="gantt-bar-label">${mall}</div>
                 <div class="gantt-bar-visual" style="width: ${percentage}%;"></div>
-                ${!withoutPrices ? `<span style="margin-right: 10px;">${cost.toLocaleString()} ₪</span>` : ''}
+                ${!withoutPrices ? `<span style="margin-right: 10px;">${cost.toLocaleString()}</span>` : ''}
             </div>
         `);
     });
@@ -677,7 +681,7 @@ function exportGanttToPDF(withoutPrices = false) {
     printWindow.print();
     
     if (typeof addMessage === 'function') {
-        addMessage(`<strong>📄 יצוא PDF הושלם!</strong><br>תוכנית הגנט ${withoutPrices ? 'ללא מחירים' : 'עם מחירים'} נשלחה להדפסה/שמירה כ-PDF.`);
+        addMessage(`<strong>יצוא PDF הושלם!</strong><br>תוכנית הגנט ${withoutPrices ? 'ללא מחירים' : 'עם מחירים'} נשלחה להדפסה/שמירה כ-PDF.`);
     }
 }
 
@@ -702,7 +706,7 @@ function editMallPlatforms(mall, rowIndex) {
     const editHtml = `
         <div id="editPlatformsModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;">
             <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 70%; overflow-y: auto;">
-                <h3 style="margin-top: 0; color: #007bff;">✏️ עריכת פלטפורמות - ${mall}</h3>
+                <h3 style="margin-top: 0; color: #007bff;">עריכת פלטפורמות - ${mall}</h3>
                 <p style="color: #666;">בחר את הפלטפורמות שברצונך לכלול בחישוב:</p>
                 
                 <div id="platformsCheckboxes" style="margin: 20px 0;">
@@ -715,8 +719,8 @@ function editMallPlatforms(mall, rowIndex) {
                 </div>
                 
                 <div style="text-align: center; margin-top: 25px;">
-                    <button onclick="applyPlatformChanges('${mall}', ${rowIndex})" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-left: 10px;">✅ החל שינויים</button>
-                    <button onclick="closeEditModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">❌ ביטול</button>
+                    <button onclick="applyPlatformChanges('${mall}', ${rowIndex})" style="background: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin-left: 10px;">החל שינויים</button>
+                    <button onclick="closeEditModal()" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer;">ביטול</button>
                 </div>
             </div>
         </div>
@@ -773,9 +777,9 @@ function applyPlatformChanges(mall, rowIndex) {
     const row = document.getElementById(`mall-row-${rowIndex}`);
     if (row) {
         const cells = row.querySelectorAll('td');
-        cells[1].textContent = newMallCount; // מוצרים
-        cells[2].textContent = selectedPlatforms.join(', '); // פלטפורמות
-        cells[4].textContent = newMallSum.toLocaleString(); // עלות
+        cells[1].textContent = newMallCount;
+        cells[2].textContent = selectedPlatforms.join(', ');
+        cells[4].textContent = newMallSum.toLocaleString();
     }
     
     // עדכון אחוזים
@@ -783,7 +787,9 @@ function applyPlatformChanges(mall, rowIndex) {
     
     closeEditModal();
     
-    addSystemNotification(`<strong>✏️ פלטפורמות עודכנו</strong><br>מתחם "${mall}" עודכן עם ${selectedPlatforms.length} פלטפורמות נבחרות.`);
+    if (typeof addSystemNotification === 'function') {
+        addSystemNotification(`<strong>פלטפורמות עודכנו</strong><br>מתחם "${mall}" עודכן עם ${selectedPlatforms.length} פלטפורמות נבחרות.`);
+    }
 }
 
 // פונקציה לחישוב אחוזים מחדש
@@ -812,10 +818,15 @@ function closeEditModal() {
 
 // פונקציה כללית לעריכת תוצאות הגנט
 function editGanttResults() {
-    addSystemNotification(`<strong>✏️ מצב עריכה</strong><br>השתמש בכפתורים "ערוך" ו"הסר" בטבלה לעריכת התוצאות.`);
+    if (typeof addSystemNotification === 'function') {
+        addSystemNotification('<strong>מצב עריכה</strong><br>השתמש בכפתורי "ערוך" ו"הסר" בטבלה לעריכת התוצאות.');
+    }
 }
+
+// פונקציה לניקוי הטופס
 function clearGanttForm() {
-    selectedMalls.clear();
+    const mallsToUse = typeof window !== 'undefined' && window.selectedMalls ? window.selectedMalls : selectedMalls;
+    mallsToUse.clear();
     updateMallsDisplay();
     updateMallsDropdown();
     
@@ -830,7 +841,7 @@ function clearGanttForm() {
     currentGanttData = null;
     
     if (ganttResults) {
-        ganttResults.innerHTML = '<div style="text-align:center; padding:20px; color:#28a745; font-weight:600;">✅ הטופס נוקה בהצלחה!</div>';
+        ganttResults.innerHTML = '<div style="text-align:center; padding:20px; color:#28a745; font-weight:600;">הטופס נוקה בהצלחה!</div>';
         setTimeout(() => {
             ganttResults.innerHTML = '';
         }, 2000);
