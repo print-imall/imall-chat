@@ -4,7 +4,10 @@
 var savedGanttPlans = []; // אם לא קיים כבר
 var currentGanttData = null; 
 
-// לא מגדירים allMalls ו-selectedMalls כי הם כבר קיימים במערכת
+// וידוא שהמשתנים הגלובליים קיימים
+if (typeof selectedMalls === 'undefined') {
+    var selectedMalls = new Set();
+}
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
@@ -29,6 +32,7 @@ function updateGanttMallOptions() {
         Array.from(allMallsSet).sort().forEach(mall => allMalls.push(mall));
     } else {
         window.allMalls = Array.from(allMallsSet).sort();
+        allMalls = window.allMalls;
     }
     
     console.log('מתחמים שנמצאו:', allMalls);
