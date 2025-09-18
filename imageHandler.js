@@ -53,12 +53,20 @@ function shareProduct(productCode) {
 }
 
 // פונקציה להצגת תוצאת מוצר עם הדגשות
-function displayProductResult(item, searchTerms = []) {
+function displayProductResult(item, searchTerms = [], resultNumber = 1, totalResults = 1) {
     const product = item.product;
     const productCode = product['מקט'] || 'לא זמין';
     const imageUrl = generateImageUrl(productCode);
     
     let html = '<div class="product-result">';
+    
+    // הוספת מספר התוצאה
+    if (totalResults > 1) {
+        html += `<div style="background: rgba(23, 162, 184, 0.1); padding: 8px 16px; border-radius: 8px 8px 0 0; border-bottom: 2px solid #17a2b8; text-align: center;">
+            <small style="color: #17a2b8; font-weight: bold;">תוצאה ${resultNumber} מתוך ${totalResults}</small>
+        </div>`;
+    }
+    
     html += '<div class="product-compact">';
     html += '<div class="product-image-compact">';
     html += `<img src="${imageUrl}" alt="תמונת מוצר ${productCode}" onerror="handleImageError(this)" style="background:#fff" />`;
