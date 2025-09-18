@@ -50,14 +50,15 @@
             <!-- טאב חיפוש -->
             <div id="tabSearchPanel" class="tab-panel" style="display:block;">
                 <div class="messages-area" id="messagesArea">
-                    <div class="message system">
-                        <strong>🤖 ברוכים הבאים למערכת חיפוש מוצרים של אימולון!</strong><br><br>
-                        <strong>איך החיפוש עובד:</strong><br>
-                        • המערכת מחפשת תחילה בשדה "פלטפורמה"<br>
-                        • אם לא מוצאת התאמה, מחפשת בשדות אחרים<br>
-                        • מציגה את כל התוצאות המתאימות (עד 30)<br><br>
-                        <strong>התחל לחפש:</strong> הקלד שם פלטפורמה, מקט, או כל מידע אחר של המוצר.<br><br>
-                        <em>המערכת טוענת את הנתונים... אנא המתן כמה רגעים.</em>
+                    <!-- מסך ברוכים הבאים נקי -->
+                    <div class="message system" id="welcomeMessage">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <h2 style="color: #007bff; margin-bottom: 20px;">🔍 חיפוש מוצרים</h2>
+                            <p style="font-size: 18px; color: #666; margin-bottom: 30px;">הכנס מילת חיפוש למציאת מוצרים במאגר</p>
+                            <button onclick="showHelp()" style="background: linear-gradient(135deg, #17a2b8, #138496); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                ❓ איך המערכת עובדת?
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="input-area">
@@ -143,5 +144,44 @@
     <script src="searchEngine.js"></script>
     <script src="imageHandler.js"></script>
     <script src="main.js"></script>
+    
+    <script>
+        // פונקציה להצגת עזרה
+        function showHelp() {
+            const helpMessage = `
+                <div style="background: rgba(23, 162, 184, 0.1); padding: 20px; border-radius: 12px; border-right: 4px solid #17a2b8;">
+                    <h3 style="color: #17a2b8; margin-top: 0;">🤖 איך המערכת עובדת?</h3>
+                    
+                    <h4 style="color: #333; margin-bottom: 10px;">📋 שלבי החיפוש:</h4>
+                    <p>• <strong>שלב 1:</strong> המערכת מחפשת תחילה בשדה "פלטפורמה"</p>
+                    <p>• <strong>שלב 2:</strong> אם לא נמצאו תוצאות, מחפשת בכל השדות</p>
+                    <p>• <strong>שלב 3:</strong> מציגה עד 30 התוצאות הרלוונטיות ביותר</p>
+                    
+                    <h4 style="color: #333; margin-bottom: 10px;">🔍 דוגמאות חיפוש:</h4>
+                    <p>• <strong>לפי פלטפורמה:</strong> "דיגיטלי", "פרינט"</p>
+                    <p>• <strong>לפי מק"ט:</strong> "12345", "ABC-123"</p>
+                    <p>• <strong>לפי מתחם:</strong> "קניון עזריאלי", "רמת אביב"</p>
+                    <p>• <strong>לפי קמפיין:</strong> "קיץ 2024", "מבצע חורף"</p>
+                    
+                    <h4 style="color: #333; margin-bottom: 10px;">✨ תכונות נוספות:</h4>
+                    <p>• <strong>💾 שמירת חיפושים:</strong> לחץ "שמור" לשמירת החיפוש הנוכחי</p>
+                    <p>• <strong>📱 שליחה בוואטסאפ:</strong> שתף פרטי מוצר ישירות</p>
+                    <p>• <strong>📊 גנט תקציב:</strong> חישוב תקציב לפי מתחמים נבחרים</p>
+                    <p>• <strong>🎯 הדגשת תוצאות:</strong> מילות החיפוש מודגשות בתוצאות</p>
+                    
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button onclick="closeHelp()" style="background: #17a2b8; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">✅ הבנתי</button>
+                    </div>
+                </div>
+            `;
+            
+            addMessage(helpMessage);
+        }
+        
+        // פונקציה לסגירת העזרה (חזרה למסך ראשי)
+        function closeHelp() {
+            clearHistory();
+        }
+    </script>
 </body>
 </html>
