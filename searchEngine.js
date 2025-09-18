@@ -207,4 +207,69 @@ function exportSearchResults(format) {
     addMessage(`<strong>📥 ייצוא ${format.toUpperCase()} הושלם!</strong><br>תוצאות החיפוש יוצאו בהצלחה.`);
 }
 
-function updateSavedSearch
+function updateSavedSearchesDisplay() {
+    const container = document.getElementById('savedSearchesContainer');
+    const list = document.getElementById('savedSearchesList');
+    
+    if (!container || !list) return;
+    
+    if (savedSearches.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    list.innerHTML = savedSearches.map(search => `
+        <div class="saved-search-item">
+            <div class="saved-search-text">
+                <strong>"${search.text}"</strong><br>
+                <small>${search.date} • ${search.results_count} תוצאות</small>
+            </div>
+            <div class="saved-search-actions">
+                <button class="saved-search-btn search-btn-load" onclick="loadSavedSearch('${search.text}')">טען</button>
+                <button class="saved-search-btn search-btn-delete" onclick="deleteSavedSearch(${search.id})">מחק</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadSavedSearch(searchText) {
+    if (elements.searchInput) {
+        elements.searchInput.value = searchText;
+        performSearch();
+    }
+}
+
+function deleteSavedSearch(searchId) {
+    savedSearches = savedSearches.filter(s => s.id !== searchId);
+    localStorage.setItem('companySearches', JSON.stringify(savedSearches));
+    updateSavedSearchesDisplay();
+}
+
+function convertToCSV(data) {
+    if (!data || data.length === 0) return '';
+    
+    const headers = Object.keys(data[0]);
+    const csvHeaders = headers.join(',');
+    
+    const csvRows = data.map(row => {
+        return headers.map(header => {
+            const value = row[header] || '';
+            return `"${String(value).replace(/"/g, '""')}"`;
+        }).join(',');
+    });
+    
+    return [csvHeaders, ...csvRows].join('\n');
+}
+
+function downloadFile(content, filename, contentType) {
+    const blob = new Blob([content], { type: contentType + ';charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
