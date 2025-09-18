@@ -165,11 +165,20 @@ function performSearch() {
     const query = searchInput.value.trim();
     if (!query) return;
     
-    addMessage(query, 'user');
+    // הוסף את הודעת החיפוש למערכת
+    addSystemNotification(`חיפוש: "${query}"`);
+    
     const results = searchProducts(query);
     
     if (results.length === 0) {
         currentSearchResults = [];
+        
+        // נקה את אזור התוצאות
+        const messagesArea = document.getElementById('messagesArea');
+        if (messagesArea) {
+            messagesArea.innerHTML = '';
+        }
+        
         addMessage('<div class="error-message"><strong>🔍 לא נמצאו תוצאות</strong><br>לא נמצא מוצר התואם לחיפוש "<strong>' + query + '</strong>".<br><br><strong>טיפים לחיפוש טוב יותר:</strong><br>• נסה להקליד שם פלטפורמה מדויק<br>• בדוק את האיות<br>• נסה מילים קצרות יותר<br>• נסה לחפש לפי מספר מקט<br>• נסה להסיר כמה מילים</div>');
     } else {
         displayAllProductResults(results);
