@@ -112,6 +112,10 @@ function removeMall(mall) {
 
 // פונקציה לחישוב תקציב גנט
 function calculateGanttBudget() {
+    console.log('מתחיל חישוב גנט...');
+    console.log('מתחמים נבחרים:', selectedMalls);
+    console.log('נתוני מוצרים:', productsData ? productsData.length : 'לא זמינים');
+    
     const type = document.getElementById('ganttType').value;
     const budget = Number(document.getElementById('ganttBudget').value);
     
@@ -121,31 +125,64 @@ function calculateGanttBudget() {
         return;
     }
     
+    if (!productsData || productsData.length === 0) {
+        document.getElementById('ganttResults').innerHTML = 
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ אין נתוני מוצרים זמינים</div>';
+        return;
+    }
+    
     let mallSums = {};
     let mallCounts = {};
     
+    console.log('מתחיל לעבור על נתוני מוצרים...');
+    
     // חישוב סכומים לכל מתחם נבחר
-    productsData.forEach(p => {
+    productsData.forEach((p, index) => {
         const mall = p['מתחם'];
-        if (!mall || !selectedMalls.has(mall.trim())) return;
+        if (!mall) return;
+        
+        const mallTrimmed = mall.trim();
+        if (!selectedMalls.has(mallTrimmed)) return;
+        
+        console.log(`מוצר ${index}: מתחם="${mallTrimmed}", פלטפורמה="${p['פלטפורמה']}", מחיר="${p['מחיר מכירה']}"`);
         
         // סינון לפי סוג קמפיין
-        if (type === 'פרינט' && (!p['פלטפורמה'] || !p['פלטפורמה'].includes('פרינט'))) return;
-        if (type === 'דיגיטלי' && (!p['פלטפורמה'] || !p['פלטפורמה'].includes('דיגיטלי'))) return;
+        if (type === 'פרינט' && (!p['פלטפורמה'] || !String(p['פלטפורמה']).includes('פרינט'))) {
+            console.log('מדלג - לא פרינט');
+            return;
+        }
+        if (type === 'דיגיטלי' && (!p['פלטפורמה'] || !String(p['פלטפורמה']).includes('דיגיטלי'))) {
+            console.log('מדלג - לא דיגיטלי');
+            return;
+        }
         
-        let price = Number(String(p['מחיר מכירה'] || '0').replace(/[^0-9.]/g, ''));
+        // חילוץ מחיר
+        let priceStr = String(p['מחיר מכירה'] || '0');
+        let price = Number(priceStr.replace(/[^0-9.]/g, ''));
         if (isNaN(price)) price = 0;
         
-        const mallKey = mall.trim();
-        if (!mallSums[mallKey]) {
-            mallSums[mallKey] = 0;
-            mallCounts[mallKey] = 0;
+        console.log(`מחיר אחרי עיבוד: ${price}`);
+        
+        if (!mallSums[mallTrimmed]) {
+            mallSums[mallTrimmed] = 0;
+            mallCounts[mallTrimmed] = 0;
         }
-        mallSums[mallKey] += price;
-        mallCounts[mallKey]++;
+        mallSums[mallTrimmed] += price;
+        mallCounts[mallTrimmed]++;
     });
     
+    console.log('תוצאות חישוב:', mallSums);
+    console.log('מספרי מוצרים:', mallCounts);
+    
     const selectedMallsList = Array.from(selectedMalls);
+    
+    // בדיקה שיש נתונים
+    const totalSum = Object.values(mallSums).reduce((a, b) => a + b, 0);
+    if (totalSum === 0) {
+        document.getElementById('ganttResults').innerHTML = 
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ לא נמצאו מוצרים עם מחירים תקפים למתחמים הנבחרים</div>';
+        return;
+    }
     
     // סינון לפי תקציב אם הוגדר
     let finalMalls = selectedMallsList;
@@ -167,7 +204,7 @@ function calculateGanttBudget() {
     
     if (finalMalls.length === 0) {
         document.getElementById('ganttResults').innerHTML = 
-            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ לא נמצאו מתחמים תואמים לתקציב או לסוג הקמפיין</div>';
+            '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">⚠️ לא נמצאו מתחמים תואמים לתקציב</div>';
         return;
     }
     
@@ -181,6 +218,8 @@ function calculateGanttBudget() {
         selectedMalls: Array.from(selectedMalls),
         generatedAt: new Date().toISOString()
     };
+    
+    console.log('נתוני גנט סופיים:', currentGanttData);
     
     // יצירת דוח תוצאות
     generateGanttReport(finalMalls, mallSums, mallCounts, type, budget);
