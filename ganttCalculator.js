@@ -248,11 +248,11 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, typ
     
     // חישוב פלטפורמות שנכללו בפועל בגנט לכל מתחם
     let mallPlatforms = {};
-    let mallProducts = {}; // נוסיף גם מערך המוצרים שנכללו
+    let mallProductsData = {}; // שינוי השם כדי למנוע התנגשות
     
     finalMalls.forEach(mall => {
         mallPlatforms[mall] = new Set();
-        mallProducts[mall] = [];
+        mallProductsData[mall] = [];
         
         productsData.forEach(p => {
             if (p['מתחם'] && p['מתחם'].trim() === mall) {
@@ -272,7 +272,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, typ
                 
                 if (includeProduct && p['פלטפורמה']) {
                     mallPlatforms[mall].add(p['פלטפורמה']);
-                    mallProducts[mall].push(p); // שמור את המוצר עבור ה-PDF
+                    mallProductsData[mall].push(p); // שמור את המוצר עבור ה-PDF
                 }
             }
         });
