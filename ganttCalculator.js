@@ -237,12 +237,12 @@ function calculateGanttBudget() {
         generatedAt: new Date().toISOString()
     };
     
-    // יצירת דוח תוצאות
-    generateGanttReport(finalMalls, mallSums, mallCounts, type, budget);
+    // יצירת דוח תוצאות - העברת mallProducts לפונקציה
+    generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, type, budget);
 }
 
 // פונקציה ליצירת דוח גנט
-function generateGanttReport(finalMalls, mallSums, mallCounts, type, budget) {
+function generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, type, budget) {
     let totalCost = 0;
     let totalProducts = 0;
     
