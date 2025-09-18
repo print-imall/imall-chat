@@ -1,10 +1,10 @@
 // מחשבון גנט - עם תרשימים ויצוא PDF
 
-// משתנים לניהול תוכניות גנט - הגבלה לסקופ הגנט בלבד
-var ganttSavedPlans = [];
-var ganttCurrentData = null;
-var ganttMalls = [];
-var ganttSelectedMalls = new Set();
+// משתנים לניהול תוכניות גנט - תואם ל-main.js
+var savedGanttPlans = []; // משתנה גלובלי שmain.js מצפה לו
+var currentGanttData = null; // משתנה גלובלי שmain.js מצפה לו
+var allMalls = []; // משתנה גלובלי שmain.js מצפה לו
+var selectedMalls = new Set(); // משתנה גלובלי שmain.js מצפה לו
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
@@ -23,8 +23,8 @@ function updateGanttMallOptions() {
         }
     });
     
-    ganttMalls = Array.from(allMallsSet).sort();
-    console.log('מתחמים שנמצאו:', ganttMalls);
+    allMalls = Array.from(allMallsSet).sort();
+    console.log('מתחמים שנמצאו:', allMalls);
     updateMallsDropdown();
 }
 
@@ -38,7 +38,7 @@ function updateMallsDropdown() {
     
     dropdown.innerHTML = '';
     
-    if (ganttMalls.length === 0) {
+    if (allMalls.length === 0) {
         dropdown.innerHTML = '<div class="multi-select-option">אין מתחמים זמינים</div>';
         return;
     }
@@ -47,7 +47,7 @@ function updateMallsDropdown() {
     const selectAllOption = document.createElement('div');
     selectAllOption.className = 'multi-select-option';
     selectAllOption.innerHTML = `
-        <input type="checkbox" id="selectAll" ${ganttSelectedMalls.size === ganttMalls.length ? 'checked' : ''}>
+        <input type="checkbox" id="selectAll" ${selectedMalls.size === allMalls.length ? 'checked' : ''}>
         <label for="selectAll"><strong>בחר הכל</strong></label>
     `;
     selectAllOption.addEventListener('click', function(e) {
@@ -55,10 +55,10 @@ function updateMallsDropdown() {
         const checkbox = this.querySelector('input');
         
         if (checkbox.checked) {
-            ganttSelectedMalls.clear();
+            selectedMalls.clear();
         } else {
-            ganttSelectedMalls.clear();
-            ganttMalls.forEach(mall => ganttSelectedMalls.add(mall));
+            selectedMalls.clear();
+            allMalls.forEach(mall => selectedMalls.add(mall));
         }
         updateMallsDisplay();
         updateMallsDropdown();
@@ -72,7 +72,7 @@ function updateMallsDropdown() {
     dropdown.appendChild(separator);
     
     // אפשרויות המתחמים
-    ganttMalls.forEach(mall => {
+    allMalls.forEach(mall => {
         const option = document.createElement('div');
         option.className = 'multi-select-option';
         option.innerHTML = `
@@ -84,9 +84,9 @@ function updateMallsDropdown() {
             const checkbox = this.querySelector('input');
             
             if (checkbox.checked) {
-                ganttSelectedMalls.delete(mall);
+                selectedMalls.delete(mall);
             } else {
-                ganttSelectedMalls.add(mall);
+                selectedMalls.add(mall);
             }
             updateMallsDisplay();
             updateMallsDropdown();
@@ -103,11 +103,11 @@ function updateMallsDisplay() {
         return;
     }
     
-    if (ganttSelectedMalls.size === 0) {
+    if (selectedMalls.size === 0) {
         selectedMallsDiv.innerHTML = '<span style="color:#999;">בחר מתחמים...</span>';
     } else {
         selectedMallsDiv.innerHTML = '';
-        Array.from(ganttSelectedMalls).forEach(mall => {
+        Array.from(selectedMalls).forEach(mall => {
             const item = document.createElement('div');
             item.className = 'selected-item';
             item.innerHTML = `
@@ -121,7 +121,7 @@ function updateMallsDisplay() {
 
 // פונקציה להסרת מתחם
 function removeMall(mall) {
-    ganttSelectedMalls.delete(mall);
+    selectedMalls.delete(mall);
     updateMallsDisplay();
     updateMallsDropdown();
 }
@@ -129,13 +129,13 @@ function removeMall(mall) {
 // פונקציה לחישוב תקציב גנט
 function calculateGanttBudget() {
     console.log('מתחיל חישוב גנט...');
-    console.log('מתחמים נבחרים:', Array.from(ganttSelectedMalls));
+    console.log('מתחמים נבחרים:', Array.from(selectedMalls));
     console.log('נתוני מוצרים:', productsData ? productsData.length : 'לא זמינים');
     
     const type = document.getElementById('ganttType').value;
     const budget = Number(document.getElementById('ganttBudget').value);
     
-    if (ganttSelectedMalls.size === 0) {
+    if (selectedMalls.size === 0) {
         document.getElementById('ganttResults').innerHTML = 
             '<div style="color:#dc3545; font-weight:bold; text-align:center; padding:20px;">אנא בחר לפחות מתחם אחד</div>';
         return;
@@ -382,7 +382,7 @@ function generateGanttReport(finalMalls, mallSums, mallCounts, mallProducts, typ
 
 // פונקציה לשמירת תוכנית
 function saveGanttPlan() {
-    if (!ganttCurrentData) {
+    if (!currentGanttData) {
         alert('אין תוכנית גנט לשמירה');
         return;
     }
@@ -393,25 +393,25 @@ function saveGanttPlan() {
     const planToSave = {
         id: Date.now(),
         name: planName,
-        data: ganttCurrentData,
+        data: currentGanttData,
         savedAt: new Date().toISOString()
     };
     
-    ganttSavedPlans.unshift(planToSave);
-    if (ganttSavedPlans.length > 10) ganttSavedPlans.pop();
+    savedGanttPlans.unshift(planToSave);
+    if (savedGanttPlans.length > 10) savedGanttPlans.pop();
     
     alert('התוכנית נשמרה בהצלחה!');
 }
 
 // פונקציה ליצוא PDF
 function exportGanttToPDF(withoutPrices = false) {
-    if (!ganttCurrentData) {
+    if (!currentGanttData) {
         alert('אין נתוני גנט ליצוא');
         return;
     }
     
     const printWindow = window.open('', '', 'height=800,width=1000');
-    const { finalMalls, mallSums, mallCounts, mallProducts, type, budget } = ganttCurrentData;
+    const { finalMalls, mallSums, mallCounts, mallProducts, type, budget } = currentGanttData;
     let totalCost = Object.values(mallSums).reduce((a, b) => a + b, 0);
     let totalProducts = Object.values(mallCounts).reduce((a, b) => a + b, 0);
     
@@ -495,7 +495,7 @@ function exportGanttToPDF(withoutPrices = false) {
 
 // פונקציה לניקוי הטופס
 function clearGanttForm() {
-    ganttSelectedMalls.clear();
+    selectedMalls.clear();
     updateMallsDisplay();
     updateMallsDropdown();
     
@@ -507,5 +507,5 @@ function clearGanttForm() {
     if (ganttBudget) ganttBudget.value = '';
     if (ganttResults) ganttResults.innerHTML = '';
     
-    ganttCurrentData = null;
+    currentGanttData = null;
 }
