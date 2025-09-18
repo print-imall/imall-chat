@@ -147,14 +147,22 @@ function calculateGanttBudget() {
         console.log(`מוצר ${index}: מתחם="${mallTrimmed}", פלטפורמה="${p['פלטפורמה']}", מחיר="${p['מחיר מכירה']}"`);
         
         // סינון לפי סוג קמפיין
-        if (type === 'פרינט' && (!p['פלטפורמה'] || !String(p['פלטפורמה']).includes('פרינט'))) {
-            console.log('מדלג - לא פרינט');
-            return;
+        const platformStr = String(p['פלטפורמה'] || '').toLowerCase();
+        
+        if (type === 'פרינט') {
+            // עבור פרינט - מחפש "פרינט" או "print" בפלטפורמה
+            if (!platformStr.includes('פרינט') && !platformStr.includes('print')) {
+                console.log(`מדלג על פרינט - פלטפורמה: "${p['פלטפורמה']}"`);
+                return;
+            }
+        } else if (type === 'דיגיטלי') {
+            // עבור דיגיטלי - מחפש "דיגיטלי" או "digital" בפלטפורמה
+            if (!platformStr.includes('דיגיטלי') && !platformStr.includes('digital')) {
+                console.log(`מדלג על דיגיטלי - פלטפורמה: "${p['פלטפורמה']}"`);
+                return;
+            }
         }
-        if (type === 'דיגיטלי' && (!p['פלטפורמה'] || !String(p['פלטפורמה']).includes('דיגיטלי'))) {
-            console.log('מדלג - לא דיגיטלי');
-            return;
-        }
+        // אם type === 'all' - לא מסנן כלום
         
         // חילוץ מחיר
         let priceStr = String(p['מחיר מכירה'] || '0');
