@@ -1,10 +1,10 @@
 // מחשבון גנט - עם תרשימים ויצוא PDF
 
-// משתנים לניהול תוכניות גנט - תואם ל-main.js
-var savedGanttPlans = []; // משתנה גלובלי שmain.js מצפה לו
-var currentGanttData = null; // משתנה גלובלי שmain.js מצפה לו
-var allMalls = []; // משתנה גלובלי שmain.js מצפה לו
-var selectedMalls = new Set(); // משתנה גלובלי שmain.js מצפה לו
+// משתנים לניהול תוכניות גנט - משתמשים במשתנים הגלובליים הקיימים
+var savedGanttPlans = []; // אם לא קיים כבר
+var currentGanttData = null; 
+
+// לא מגדירים allMalls ו-selectedMalls כי הם כבר קיימים במערכת
 
 // פונקציה לעדכון רשימת המתחמים
 function updateGanttMallOptions() {
@@ -23,7 +23,14 @@ function updateGanttMallOptions() {
         }
     });
     
-    allMalls = Array.from(allMallsSet).sort();
+    // עדכון המשתנה הגלובלי הקיים במקום יצירת חדש
+    if (typeof allMalls !== 'undefined') {
+        allMalls.length = 0; // ניקוי המערך הקיים
+        Array.from(allMallsSet).sort().forEach(mall => allMalls.push(mall));
+    } else {
+        window.allMalls = Array.from(allMallsSet).sort();
+    }
+    
     console.log('מתחמים שנמצאו:', allMalls);
     updateMallsDropdown();
 }
