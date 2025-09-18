@@ -158,21 +158,27 @@ function calculateGanttBudget() {
         const mallTrimmed = mall.trim();
         if (!ganttSelectedMalls.has(mallTrimmed)) return;
         
-        // סינון לפי סוג קמפיין - חיפוש בעמודת "קמפיין"
-        const campaignStr = String(p['קמפיין'] || '').toLowerCase();
+        // סינון לפי סוג קמפיין - בדיקה מדויקת יותר
+        const campaignStr = String(p['קמפיין'] || '').toLowerCase().trim();
         
-        console.log(`מוצר ${mall}: קמפיין="${campaignStr}", סוג="${type}"`);
+        console.log(`מוצר ${mall}: קמפיין="${campaignStr}", בודק סוג="${type}"`);
         
         if (type === 'פרינט') {
-            if (!campaignStr.includes('פרינט') && !campaignStr.includes('print') && 
-                !campaignStr.includes('printed') && !campaignStr.includes('הדפסה')) {
-                console.log('מדלג על פרינט - לא מתאים');
+            // רק אם זה פרינט - דחה אם זה דיגיטלי או לא פרינט
+            if (campaignStr.includes('דיגיטלי') || campaignStr.includes('digital') || 
+                campaignStr.includes('אונליין') || campaignStr.includes('online') ||
+                (!campaignStr.includes('פרינט') && !campaignStr.includes('print') && 
+                 !campaignStr.includes('הדפסה') && campaignStr.length > 0)) {
+                console.log('מדלג - לא פרינט');
                 return;
             }
         } else if (type === 'דיגיטלי') {
-            if (!campaignStr.includes('דיגיטלי') && !campaignStr.includes('digital') && 
-                !campaignStr.includes('אונליין') && !campaignStr.includes('online')) {
-                console.log('מדלג על דיגיטלי - לא מתאים');
+            // רק אם זה דיגיטלי - דחה אם זה פרינט או לא דיגיטלי
+            if (campaignStr.includes('פרינט') || campaignStr.includes('print') || 
+                campaignStr.includes('הדפסה') ||
+                (!campaignStr.includes('דיגיטלי') && !campaignStr.includes('digital') && 
+                 !campaignStr.includes('אונליין') && !campaignStr.includes('online') && campaignStr.length > 0)) {
+                console.log('מדלג - לא דיגיטלי');
                 return;
             }
         }
